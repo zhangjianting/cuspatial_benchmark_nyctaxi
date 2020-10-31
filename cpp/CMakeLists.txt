@@ -17,9 +17,12 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(CUSPATIAL_TESTS LANGUAGES C CXX CUDA)
 
+
 if(NOT CMAKE_CUDA_COMPILER)
   message(SEND_ERROR "CMake cannot locate a CUDA compiler")
 endif()
+
+set(DEFAULT_BUILD_TYPE "Release")
 
 ###################################################################################################
 # - common test utils -----------------------------------------------------------------------------
@@ -74,9 +77,6 @@ endfunction(ConfigureTest)
 
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
-
-include_directories("${THRUST_INCLUDE_DIR}"
-                    "${LIBCUDACXX_INCLUDE_DIR}")
 
 if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
