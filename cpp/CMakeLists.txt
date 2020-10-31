@@ -1,4 +1,4 @@
-﻿#=============================================================================
+#=============================================================================
 # Copyright (c) 2019-2020, NVIDIA CORPORATION.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,23 +15,165 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(CUSPATIAL_TESTS LANGUAGES C CXX CUDA)
-
-option(BUILD_TESTS "Configure CMake to build tests" ON)
+project(CUDA_SPATIAL VERSION 0.16.0 LANGUAGES C CXX CUDA)
 
 if(NOT CMAKE_CUDA_COMPILER)
   message(SEND_ERROR "CMake cannot locate a CUDA compiler")
 endif()
 
+###################################################################################################
+# - build type ------------------------------------------------------------------------------------
+
+# Set a default build type if none was specified
 set(DEFAULT_BUILD_TYPE "Release")
 
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  message(STATUS "Setting build type to '${DEFAULT_BUILD_TYPE}' since none specified.")
+  set(CMAKE_BUILD_TYPE "${DEFAULT_BUILD_TYPE}" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 ###################################################################################################
-# - common test utils -----------------------------------------------------------------------------
+# - compiler options ------------------------------------------------------------------------------
 
-find_library(CUDFTESTUTIL_LIBRARY "libcudftestutil.a"
-             HINTS "$ENV{CUDF_ROOT}/lib")
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_COMPILER $ENV{CC})
+set(CMAKE_CXX_COMPILER $ENV{CXX})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-message(STATUS "CUDFTESTUTIL: CUDFTESTUTIL_LIBRARY set to ${CUDFTESTUTIL_LIBRARY}")
+set(CMAKE_CUDA_STANDARD 14)
+set(CMAKE_CUDA_STANDARD_REQUIRED ON)
+
+if(CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wno-error=deprecated-declarations")
+
+    # Suppress parentheses warning which causes gmock to fail
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-parentheses")
+
+endif(CMAKE_COMPILER_IS_GNUCXX)
+
+if(CMAKE_CUDA_COMPILER_VERSION)
+  # Compute the version. from  CMAKE_CUDA_COMPILER_VERSION
+  string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\1" CUDA_VERSION_MAJOR ${CMAKE_CUDA_COMPILER_VERSION})
+  string(REGEX REPLACE "([0-9]+)\\.([0-9]+).*" "\\2" CUDA_VERSION_MINOR ${CMAKE_CUDA_COMPILER_VERSION})
+  set(CUDA_VERSION "${CUDA_VERSION_MAJOR}.${CUDA_VERSION_MINOR}" CACHE STRING "Version of CUDA as computed from nvcc.")
+  mark_as_advanced(CUDA_VERSION)
+endif()
+
+message(STATUS "CUDA_VERSION_MAJOR: ${CUDA_VERSION_MAJOR}")
+message(STATUS "CUDA_VERSION_MINOR: ${CUDA_VERSION_MINOR}")
+message(STATUS "CUDA_VERSION: ${CUDA_VERSION}")
+
+# Always set this convenience variable
+set(CUDA_VERSION_STRING "${CUDA_VERSION}")
+
+# Auto-detect available GPU compute architectures
+set(GPU_ARCHS "ALL" CACHE STRING
+  "List of GPU architectures (semicolon-separated) to be compiled for. Pass 'ALL' if you want to compile for all supported GPU architectures. Empty string means to auto-detect the GPUs on the current system")
+
+if("${GPU_ARCHS}" STREQUAL "")
+  include(cmake/EvalGpuArchs.cmake)
+  evaluate_gpu_archs(GPU_ARCHS)
+endif()
+
+if("${GPU_ARCHS}" STREQUAL "ALL")
+  set(GPU_ARCHS "60")
+  if((CUDA_VERSION_MAJOR EQUAL 9) OR (CUDA_VERSION_MAJOR GREATER 9))
+    set(GPU_ARCHS "${GPU_ARCHS};70")
+  endif()
+  if((CUDA_VERSION_MAJOR EQUAL 10) OR (CUDA_VERSION_MAJOR GREATER 10))
+    set(GPU_ARCHS "${GPU_ARCHS};75")
+  endif()
+endif()
+message("GPU_ARCHS = ${GPU_ARCHS}")
+
+foreach(arch ${GPU_ARCHS})
+  set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode=arch=compute_${arch},code=sm_${arch}")
+endforeach()
+
+list(GET GPU_ARCHS -1 ptx)
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode=arch=compute_${ptx},code=compute_${ptx}")
+
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --expt-extended-lambda --expt-relaxed-constexpr")
+
+# set warnings as errors
+# TODO: remove `no-maybe-unitialized` used to suppress warnings in rmm::exec_policy
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Werror=cross-execution-space-call -Xcompiler -Wall,-Werror,-Wno-error=deprecated-declarations")
+
+option(DISABLE_DEPRECATION_WARNING "Disable warnings generated from deprecated declarations." OFF)
+if(DISABLE_DEPRECATION_WARNING)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Xcompiler -Wno-deprecated-declarations")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+endif(DISABLE_DEPRECATION_WARNING)
+
+# Option to enable line info in CUDA device compilation to allow introspection when profiling / memchecking
+option(CMAKE_CUDA_LINEINFO "Enable the -lineinfo option for nvcc (useful for cuda-memcheck / profiler" OFF)
+if (CMAKE_CUDA_LINEINFO)
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -lineinfo")
+endif(CMAKE_CUDA_LINEINFO)
+
+# Debug options
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    message(STATUS "Building with debugging flags")
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -G -Xcompiler -rdynamic")
+endif(CMAKE_BUILD_TYPE MATCHES Debug)
+
+# To apply RUNPATH to transitive dependencies (this is a temporary solution)
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--disable-new-dtags")
+set(CMAKE_EXE_LINKER_FLAGS "-Wl,--disable-new-dtags")
+
+option(BUILD_TESTS "Configure CMake to build tests" ON)
+
+###################################################################################################
+# - cmake modules ---------------------------------------------------------------------------------
+
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/" ${CMAKE_MODULE_PATH})
+
+include(FeatureSummary)
+include(CheckIncludeFiles)
+include(CheckLibraryExists)
+
+###################################################################################################
+# - third party dependencies-----------------------------------------------------------------------
+# add third party dependencies using CMake FetchContent
+
+add_subdirectory(cmake/thirdparty)
+
+###################################################################################################
+# - copy libcu++ ------------------------------------------------------------------------------------
+
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include/libcudacxx")
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include/libcxx/include")
+
+file(INSTALL ${LIBCUDACXX_INCLUDE_DIR} DESTINATION ${CMAKE_BINARY_DIR}/include/libcudacxx/)
+file(INSTALL ${LIBCXX_INCLUDE_DIR}     DESTINATION ${CMAKE_BINARY_DIR}/include/libcxx/include/)
+
+###################################################################################################
+# - conda environment -----------------------------------------------------------------------------
+
+if("$ENV{CONDA_BUILD}" STREQUAL "1")
+    set(CMAKE_SYSTEM_PREFIX_PATH "$ENV{BUILD_PREFIX};$ENV{PREFIX};${CMAKE_SYSTEM_PREFIX_PATH}")
+    set(CONDA_INCLUDE_DIRS "$ENV{BUILD_PREFIX}/include" "$ENV{PREFIX}/include")
+    set(CONDA_LINK_DIRS "$ENV{BUILD_PREFIX}/lib" "$ENV{PREFIX}/lib")
+    message(STATUS "Conda build detected, CMAKE_SYSTEM_PREFIX_PATH set to: ${CMAKE_SYSTEM_PREFIX_PATH}")
+elseif(DEFINED ENV{CONDA_PREFIX})
+    set(CMAKE_SYSTEM_PREFIX_PATH "$ENV{CONDA_PREFIX};${CMAKE_SYSTEM_PREFIX_PATH}")
+    set(CONDA_INCLUDE_DIRS "$ENV{CONDA_PREFIX}/include")
+    set(CONDA_LINK_DIRS "$ENV{CONDA_PREFIX}/lib")
+    message(STATUS "Conda environment detected, CMAKE_SYSTEM_PREFIX_PATH set to: ${CMAKE_SYSTEM_PREFIX_PATH}")
+endif("$ENV{CONDA_BUILD}" STREQUAL "1")
+
+###################################################################################################
+# - RMM -------------------------------------------------------------------------------------------
+
+find_path(RMM_INCLUDE "rmm"
+          HINTS "$ENV{RMM_ROOT}/include")
+
+message(STATUS "RMM: RMM_ROOT set to $ENV{RMM_ROOT}")
+message(STATUS "RMM: RMM_INCLUDE set to ${RMM_INCLUDE}")
 
 # - CUDF -------------------------------------------------------------------------------------------
 
@@ -44,32 +186,13 @@ find_library(CUDF_LIBRARY "cudf"
 message(STATUS "CUDF: CUDF_HOME set to $ENV{CUDF_HOME}")
 message(STATUS "CUDF: CUDF_LIBRARY set to ${CUDF_LIBRARY}")
 message(STATUS "CUDF: CUDF_INCLUDE set to ${CUDF_INCLUDE}")
-#message(STATUS "CUDF: THRUST_INCLUDE_DIR set to ${THRUST_INCLUDE_DIR}")
-#message(STATUS "CUDF: LIBCUDACXX_INCLUDE_DIR set to ${LIBCUDACXX_INCLUDE_DIR}")
+message(STATUS "CUDF: THRUST_INCLUDE_DIR set to ${THRUST_INCLUDE_DIR}")
+message(STATUS "CUDF: LIBCUDACXX_INCLUDE_DIR set to ${LIBCUDACXX_INCLUDE_DIR}")
 
 add_library(cudf SHARED IMPORTED ${CUDF_LIBRARY})
 if (CUDF_INCLUDE AND CUDF_LIBRARY)
     set_target_properties(cudf PROPERTIES IMPORTED_LOCATION ${CUDF_LIBRARY})
 endif (CUDF_INCLUDE AND CUDF_LIBRARY)
-
-
-# - CUSPATIAL -------------------------------------------------------------------------------------------
-
-find_path(CUSPATIAL_INCLUDE "cuspatial"
-          HINTS "$ENV{CUSPATIAL_ROOT}/include")
-
-find_library(CUSPATIAL_LIBRARY "cuspatial"
-             HINTS "$ENV{CUSPATIAL_ROOT}/lib")
-
-message(STATUS "CUSPATIAL: CUSPATIAL_HOME set to $ENV{CUSPATIAL_HOME}")
-message(STATUS "CUSPATIAL: CUSPATIAL_LIBRARY set to ${CUSPATIAL_LIBRARY}")
-message(STATUS "CUSPATIAL: CUSPATIAL_INCLUDE set to ${CUSPATIAL_INCLUDE}")
-
-add_library(cuspatial SHARED IMPORTED ${CUSPATIAL_LIBRARY})
-if (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
-    set_target_properties(cuspatial PROPERTIES IMPORTED_LOCATION ${CUSPATIAL_LIBRARY})
-endif (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
-
 
 ###################################################################################################
 # - gdal ------------------------------------------------------------------------------------------
@@ -83,17 +206,7 @@ if(NOT GDAL_FOUND)
     message(FATAL_ERROR "GDAL not found, please check your settings.")
 endif(NOT GDAL_FOUND)
 
-
-
-############################################################################################################
-add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
-
-if (CUDFTESTUTIL_LIBRARY)
-    set_target_properties(cudftestutil PROPERTIES IMPORTED_LOCATION ${CUDFTESTUTIL_LIBRARY})
-endif (CUDFTESTUTIL_LIBRARY)
-
 ###################################################################################################
-
 # - add gtest -------------------------------------------------------------------------------------
 
 if(BUILD_TESTS)
@@ -109,66 +222,3 @@ if(BUILD_TESTS)
     endif(GTEST_FOUND)
 endif(BUILD_TESTS)
 
-
-
-# - compiler function -----------------------------------------------------------------------------
-
-function(ConfigureTest CMAKE_TEST_NAME CMAKE_TEST_SRC)
-    add_executable(${CMAKE_TEST_NAME}
-                    ${CMAKE_TEST_SRC})
-    set_target_properties(${CMAKE_TEST_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    target_link_libraries(${CMAKE_TEST_NAME} gmock gtest gtest_main gdal geos_c pthread cudf cuspatial cudftestutil)
-    set_target_properties(${CMAKE_TEST_NAME} PROPERTIES
-                            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/gtests")
-    add_test(NAME ${CMAKE_TEST_NAME} COMMAND ${CMAKE_TEST_NAME})
-    set(CUDF_TEST_LIST ${CUDF_TEST_LIST} ${CMAKE_TEST_NAME} CACHE INTERNAL "CUDF_TEST_LIST")
-endfunction(ConfigureTest)
-
-###################################################################################################
-# - include paths ---------------------------------------------------------------------------------
-
-if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
-	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
-endif()
-
-include_directories("${CMAKE_SOURCE_DIR}"
-                    "${CMAKE_SOURCE_DIR}/src"
-                    "${GDAL_INCLUDE_DIRS}"
-                    "${GTEST_INCLUDE_DIR}"
-                    "${CUDF_INCLUDE}"
-                    "${CUSPATIAL_INCLUDE}")
-
-###################################################################################################
-# - library paths ---------------------------------------------------------------------------------
-
-link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES is an undocumented/unsupported variable containing the link directories for nvcc
-                 "${CMAKE_BINARY_DIR}/lib"
-                 "${GDAL_LIBRARIES}"
-                 "${CONDA_LINK_DIRS}"
-                 "${GTEST_LIBRARY_DIR}"
-                 "${CUDF_LIBRARY}"
-                 "${CUSPATIAL_LIBRARY}")
-
-set(PIP_JOIN_NYCTAXI_TEST_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_nyctaxi_test.cu"  
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp")
-ConfigureTest(PIP_JOIN_NYCTAXI_TEST "${PIP_JOIN_NYCTAXI_TEST_SRC}")
-
-set(PIP_JOIN_NYCTAXI_VERIFY_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_nyctaxi_verify.cpp"  
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_geo_utility.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cu")  
-ConfigureTest(PIP_JOIN_NYCTAXI_VERIFY "${PIP_JOIN_NYCTAXI_VERIFY_SRC}")
-
-set(PIP_JOIN_TOY_TEST_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_toy_test.cu"  
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp")
-ConfigureTest(PIP_JOIN_TOY_TEST "${PIP_JOIN_TOY_TEST_SRC}")
-
-set(PIP_JOIN_TOY_VERIFY_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_toy_verify.cpp"  
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_geo_utility.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cu")  
-ConfigureTest(PIP_JOIN_TOY_VERIFY "${PIP_JOIN_TOY_VERIFY_SRC}")
