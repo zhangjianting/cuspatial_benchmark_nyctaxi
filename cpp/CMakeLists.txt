@@ -114,7 +114,7 @@ include_directories("${CMAKE_SOURCE_DIR}"
                     "${GDAL_INCLUDE_DIRS}"
                     "${GTEST_INCLUDE_DIR}"
                     "${CUDF_INCLUDE}"
-                    ${CUSPATIAL_INCLUDE}")
+                    "${CUSPATIAL_INCLUDE}")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
