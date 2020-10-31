@@ -49,13 +49,32 @@ find_library(CUDF_LIBRARY "cudf"
 message(STATUS "CUDF: CUDF_HOME set to $ENV{CUDF_HOME}")
 message(STATUS "CUDF: CUDF_LIBRARY set to ${CUDF_LIBRARY}")
 message(STATUS "CUDF: CUDF_INCLUDE set to ${CUDF_INCLUDE}")
-message(STATUS "CUDF: THRUST_INCLUDE_DIR set to ${THRUST_INCLUDE_DIR}")
-message(STATUS "CUDF: LIBCUDACXX_INCLUDE_DIR set to ${LIBCUDACXX_INCLUDE_DIR}")
+#message(STATUS "CUDF: THRUST_INCLUDE_DIR set to ${THRUST_INCLUDE_DIR}")
+#message(STATUS "CUDF: LIBCUDACXX_INCLUDE_DIR set to ${LIBCUDACXX_INCLUDE_DIR}")
 
 add_library(cudf SHARED IMPORTED ${CUDF_LIBRARY})
 if (CUDF_INCLUDE AND CUDF_LIBRARY)
     set_target_properties(cudf PROPERTIES IMPORTED_LOCATION ${CUDF_LIBRARY})
 endif (CUDF_INCLUDE AND CUDF_LIBRARY)
+
+
+# - CUSPATIAL -------------------------------------------------------------------------------------------
+
+find_path(CUSPATIAL_INCLUDE "cuspatial"
+          HINTS "$ENV{CUSPATIAL_ROOT}/include")
+
+find_library(CUSPATIAL_LIBRARY "cuspatial"
+             HINTS "$ENV{CUSPATIAL_ROOT}/lib")
+
+message(STATUS "CUSPATIAL: CUSPATIAL_HOME set to $ENV{CUSPATIAL_HOME}")
+message(STATUS "CUSPATIAL: CUSPATIAL_LIBRARY set to ${CUSPATIAL_LIBRARY}")
+message(STATUS "CUSPATIAL: CUSPATIAL_INCLUDE set to ${CUSPATIAL_INCLUDE}")
+
+add_library(cudf SHARED IMPORTED ${CUSPATIAL_LIBRARY})
+if (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
+    set_target_properties(cuspatial PROPERTIES IMPORTED_LOCATION ${CUSPATIAL_LIBRARY})
+endif (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
+
 
 ###################################################################################################
 # - gdal ------------------------------------------------------------------------------------------
