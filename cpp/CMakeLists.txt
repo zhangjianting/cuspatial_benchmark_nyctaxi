@@ -51,6 +51,9 @@ if (CUDF_INCLUDE AND CUDF_LIBRARY)
     set_target_properties(cudf PROPERTIES IMPORTED_LOCATION ${CUDF_LIBRARY})
 endif (CUDF_INCLUDE AND CUDF_LIBRARY)
 
+if (CUDFTESTUTIL_LIBRARY)
+    set_target_properties(cudftestutil PROPERTIES IMPORTED_LOCATION ${CUDFTESTUTIL_LIBRARY})
+endif (CUDFTESTUTIL_LIBRARY)
 
 # - CUSPATIAL -------------------------------------------------------------------------------------------
 
@@ -84,9 +87,21 @@ endif(NOT GDAL_FOUND)
 
 add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
 
-if (CUDFTESTUTIL_LIBRARY)
-    set_target_properties(cudftestutil PROPERTIES IMPORTED_LOCATION ${CUDFTESTUTIL_LIBRARY})
-endif (CUDFTESTUTIL_LIBRARY)
+# - add gtest -------------------------------------------------------------------------------------
+
+if(BUILD_TESTS)
+    include(CTest)
+    include(ConfigureGoogleTest)
+
+    if(GTEST_FOUND)
+        message(STATUS "Google C++ Testing Framework (Google Test) found in ${GTEST_ROOT}")
+        include_directories(${GTEST_INCLUDE_DIR})
+        add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+    else()
+        message(AUTHOR_WARNING "Google C++ Testing Framework (Google Test) not found: automated tests are disabled.")
+    endif(GTEST_FOUND)
+endif(BUILD_TESTS)
+
 
 ###################################################################################################
 # - compiler function -----------------------------------------------------------------------------
