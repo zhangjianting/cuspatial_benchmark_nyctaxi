@@ -29,11 +29,28 @@ find_library(CUDFTESTUTIL_LIBRARY "libcudftestutil.a"
 
 message(STATUS "CUDFTESTUTIL: CUDFTESTUTIL_LIBRARY set to ${CUDFTESTUTIL_LIBRARY}")
 
-find_path(CUDF_INCLUDE "cudf"
-          HINTS "$ENV{CUDF_ROOT}/include")
+message(STATUS "CUDF: CUDF_HOME set to $ENV{CUDF_HOME}")
+message(STATUS "CUDF: CUDF_LIBRARY set to ${CUDF_LIBRARY}")
+message(STATUS "CUDF: CUDF_INCLUDE set to ${CUDF_INCLUDE}")
+message(STATUS "CUDF: THRUST_INCLUDE_DIR set to ${THRUST_INCLUDE_DIR}")
+message(STATUS "CUDF: LIBCUDACXX_INCLUDE_DIR set to ${LIBCUDACXX_INCLUDE_DIR}")
 
-find_library(CUDF_LIBRARY "cudf"
-             HINTS "$ENV{CUDF_ROOT}/lib")
+add_library(cudf SHARED IMPORTED ${CUDF_LIBRARY})
+if (CUDF_INCLUDE AND CUDF_LIBRARY)
+    set_target_properties(cudf PROPERTIES IMPORTED_LOCATION ${CUDF_LIBRARY})
+endif (CUDF_INCLUDE AND CUDF_LIBRARY)
+
+###################################################################################################
+# - gdal ------------------------------------------------------------------------------------------
+
+find_package(GDAL REQUIRED)
+
+message(STATUS "GDAL: GDAL_LIBRARIES set to ${GDAL_LIBRARIES}")
+message(STATUS "GDAL: GDAL_INCLUDE_DIRS set to ${GDAL_INCLUDE_DIRS}")
+
+if(NOT GDAL_FOUND)
+    message(FATAL_ERROR "GDAL not found, please check your settings.")
+endif(NOT GDAL_FOUND)
 
 add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
 
