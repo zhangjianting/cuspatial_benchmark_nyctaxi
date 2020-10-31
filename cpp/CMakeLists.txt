@@ -17,6 +17,7 @@ cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
 project(CUSPATIAL_TESTS LANGUAGES C CXX CUDA)
 
+option(BUILD_TESTS "Configure CMake to build tests" ON)
 
 if(NOT CMAKE_CUDA_COMPILER)
   message(SEND_ERROR "CMake cannot locate a CUDA compiler")
@@ -82,6 +83,9 @@ if(NOT GDAL_FOUND)
     message(FATAL_ERROR "GDAL not found, please check your settings.")
 endif(NOT GDAL_FOUND)
 
+
+
+############################################################################################################
 add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
 
 if (CUDFTESTUTIL_LIBRARY)
@@ -89,6 +93,24 @@ if (CUDFTESTUTIL_LIBRARY)
 endif (CUDFTESTUTIL_LIBRARY)
 
 ###################################################################################################
+
+# - add gtest -------------------------------------------------------------------------------------
+
+if(BUILD_TESTS)
+    include(CTest)
+    include(ConfigureGoogleTest)
+
+    if(GTEST_FOUND)
+        message(STATUS "Google C++ Testing Framework (Google Test) found in ${GTEST_ROOT}")
+        include_directories(${GTEST_INCLUDE_DIR})
+        add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+    else()
+        message(AUTHOR_WARNING "Google C++ Testing Framework (Google Test) not found: automated tests are disabled.")
+    endif(GTEST_FOUND)
+endif(BUILD_TESTS)
+
+
+
 # - compiler function -----------------------------------------------------------------------------
 
 function(ConfigureTest CMAKE_TEST_NAME CMAKE_TEST_SRC)
