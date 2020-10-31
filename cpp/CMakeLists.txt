@@ -29,6 +29,12 @@ find_library(CUDFTESTUTIL_LIBRARY "libcudftestutil.a"
 
 message(STATUS "CUDFTESTUTIL: CUDFTESTUTIL_LIBRARY set to ${CUDFTESTUTIL_LIBRARY}")
 
+find_path(CUDF_INCLUDE "cudf"
+          HINTS "$ENV{CUDF_ROOT}/include")
+
+find_library(CUDF_LIBRARY "cudf"
+             HINTS "$ENV{CUDF_ROOT}/lib")
+
 add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
 
 if (CUDFTESTUTIL_LIBRARY)
