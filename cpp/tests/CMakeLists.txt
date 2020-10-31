@@ -79,9 +79,6 @@ link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT
                  "${CUDF_LIBRARY}"
                  "${CUSPATIAL_LIBRARY}")
 
-set(JOIN_POINT_IN_POLYGON_LARGE_TEST_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/point_in_polygon_test_large.cpp")
-ConfigureTest(JOIN_POINT_IN_POLYGON_LARGE_TEST "${JOIN_POINT_IN_POLYGON_LARGE_TEST_SRC}")
 
 set(PIP_JOIN_NYCTAXI_TEST_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_nyctaxi_test.cu"  
