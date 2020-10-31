@@ -32,12 +32,6 @@ find_library(CUDFTESTUTIL_LIBRARY "libcudftestutil.a"
 
 message(STATUS "CUDFTESTUTIL: CUDFTESTUTIL_LIBRARY set to ${CUDFTESTUTIL_LIBRARY}")
 
-find_path(RMM_INCLUDE "rmm"
-          HINTS "$ENV{RMM_ROOT}/include")
-
-message(STATUS "RMM: RMM_ROOT set to $ENV{RMM_ROOT}")
-message(STATUS "RMM: RMM_INCLUDE set to ${RMM_INCLUDE}")
-
 # - CUDF -------------------------------------------------------------------------------------------
 
 find_path(CUDF_INCLUDE "cudf"
@@ -70,7 +64,7 @@ message(STATUS "CUSPATIAL: CUSPATIAL_HOME set to $ENV{CUSPATIAL_HOME}")
 message(STATUS "CUSPATIAL: CUSPATIAL_LIBRARY set to ${CUSPATIAL_LIBRARY}")
 message(STATUS "CUSPATIAL: CUSPATIAL_INCLUDE set to ${CUSPATIAL_INCLUDE}")
 
-add_library(cudf SHARED IMPORTED ${CUSPATIAL_LIBRARY})
+add_library(cuspatial SHARED IMPORTED ${CUSPATIAL_LIBRARY})
 if (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
     set_target_properties(cuspatial PROPERTIES IMPORTED_LOCATION ${CUSPATIAL_LIBRARY})
 endif (CUSPATIAL_INCLUDE AND CUSPATIAL_LIBRARY)
@@ -115,14 +109,12 @@ if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif()
 
-include_directories("${CMAKE_BINARY_DIR}/include"
-                    "${CMAKE_SOURCE_DIR}/include"
-                    "${CMAKE_SOURCE_DIR}"
+include_directories("${CMAKE_SOURCE_DIR}"
                     "${CMAKE_SOURCE_DIR}/src"
                     "${GDAL_INCLUDE_DIRS}"
                     "${GTEST_INCLUDE_DIR}"
-                    "${RMM_INCLUDE}"
-                    "${CUDF_INCLUDE}")
+                    "${CUDF_INCLUDE}"
+                    ${CUSPATIAL_INCLUDE}")
 
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
