@@ -14,20 +14,32 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/reduction.hpp>
+#include <cudf/types.hpp>
+#include <cudf/null_mask.hpp>
 
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
-
-#include <cudf_test/base_fixture.hpp>
-#include <cudf_test/column_utilities.hpp>
-#include <cudf_test/column_wrapper.hpp>
-#include <cudf_test/table_utilities.hpp>
-#include <cudf_test/type_lists.hpp>
-
 #include "spatial_join_test_utility.cuh"
 #include "spatial_join_test_utility.hpp"
 
-struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
+std::unique_ptr<cudf::column> make_numeric_column(cudf::data_type type,
+                                            cudf::size_type size,
+                                            cudf::mask_state state,
+                                            cudaStream_t stream,
+                                            rmm::mr::device_memory_resource* mr)
+{
+  //CUDF_FUNC_RANGE();
+  //CUDF_EXPECTS(is_numeric(type), "Invalid, non-numeric type.");
+
+  return std::make_unique<cudf::column>(type,
+                                  size,
+                                  rmm::device_buffer{size * cudf::size_of(type), stream, mr},
+                                  create_null_mask(size, state, stream, mr),
+                                  state_null_count(state, size),
+                                  std::vector<std::unique_ptr<cudf::column>>{});
+}
+
+struct SpatialJoinNYCTaxiTest
 {        
     uint32_t num_pnts=0;
     uint32_t num_quadrants=0;
@@ -103,7 +115,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
 
     SBBox<double> setup_points(const char * file_name, uint32_t first_n)
     {
-        this->num_pnts=0;
+        num_pnts=0;
         //read invidual data file  
         std::vector<uint32_t> len_vec;
         std::vector<double *> x_vec;
@@ -134,10 +146,10 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
 
         //prepare memory allocation
         for(uint32_t i=0;i<num;i++)
-            this->num_pnts+=len_vec[i];
+            num_pnts+=len_vec[i];
         uint32_t p=0;
-        this->h_pnt_x=new double[this->num_pnts];
-        this->h_pnt_y=new double[this->num_pnts];
+        h_pnt_x=new double[num_pnts];
+        h_pnt_y=new double[num_pnts];
         assert(h_pnt_x!=nullptr && h_pnt_y!=nullptr);
         
         //concatination
@@ -153,29 +165,29 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
             delete[] tmp_x;
             delete[] tmp_y;
         }
-        assert(p==this->num_pnts);
+        assert(p==num_pnts);
 
         //compute the bbox of all points; outlier points may have irrational values
         //any points that do not fall within the Area of Interests (AOIs) will be assgin a special Morton code
         //AOI is user-defined and is passed to quadtree indexing and spatial join 
-        double x1=*(std::min_element(h_pnt_x,h_pnt_x+this->num_pnts));
-        double x2=*(std::max_element(h_pnt_x,h_pnt_x+this->num_pnts));
-        double y1=*(std::min_element(h_pnt_y,h_pnt_y+this->num_pnts));
-        double y2=*(std::max_element(h_pnt_y,h_pnt_y+this->num_pnts));
+        double x1=*(std::min_element(h_pnt_x,h_pnt_x+num_pnts));
+        double x2=*(std::max_element(h_pnt_x,h_pnt_x+num_pnts));
+        double y1=*(std::min_element(h_pnt_y,h_pnt_y+num_pnts));
+        double y2=*(std::max_element(h_pnt_y,h_pnt_y+num_pnts));
         std::cout<<"read_point_catalog: x_min="<<x1<<"  y_min="<<y1<<" x_max="<<x2<<" y_max="<<y2<<std::endl;
 
         //create x/y columns, expose their raw pointers to be used in run_test() and populate x/y arrays
-        this->col_pnt_x = cudf::make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
-            this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
-        this->d_pnt_x=cudf::mutable_column_device_view::create(col_pnt_x->mutable_view(), stream)->data<double>();
-        assert(this->d_pnt_x!=nullptr);
-        HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_x, h_pnt_x, this->num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
+        col_pnt_x = make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
+            num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
+        d_pnt_x=cudf::mutable_column_device_view::create(col_pnt_x->mutable_view(), stream)->data<double>();
+        assert(d_pnt_x!=nullptr);
+        HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_x, h_pnt_x, num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
 
-        this->col_pnt_y = cudf::make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
-            this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
-        this->d_pnt_y=cudf::mutable_column_device_view::create(col_pnt_y->mutable_view(), stream)->data<double>();
-        assert(this->d_pnt_y!=nullptr);    
-        HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_y, h_pnt_y, this->num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
+        col_pnt_y = make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
+            num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
+        d_pnt_y=cudf::mutable_column_device_view::create(col_pnt_y->mutable_view(), stream)->data<double>();
+        assert(d_pnt_y!=nullptr);    
+        HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_y, h_pnt_y, num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
         
         return SBBox<double>(thrust::make_tuple(x1,y1), thrust::make_tuple(x2,y2));
     }
@@ -189,17 +201,17 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         cudf::mutable_column_view pnt_y_view=col_pnt_y->mutable_view();
         std::cout<<"run_test::num_pnts="<<col_pnt_x->size()<<std::endl;
         
-        auto quadtree_pair =cuspatial::quadtree_on_points(pnt_x_view,pnt_y_view,x1,x2,y1,y2, scale,num_level, min_size,this->mr);       
+        auto quadtree_pair =cuspatial::quadtree_on_points(pnt_x_view,pnt_y_view,x1,x2,y1,y2, scale,num_level, min_size,mr);       
         std::unique_ptr<cudf::table> quadtree_tbl=std::move(std::get<1>(quadtree_pair));
         std::unique_ptr<cudf::column> point_indices =std::move(std::get<0>(quadtree_pair));
-        this->num_quadrants=quadtree_tbl->view().num_rows();
-        std::cout<<"# of quadrants="<<this->num_quadrants<<std::endl;
+        num_quadrants=quadtree_tbl->view().num_rows();
+        std::cout<<"# of quadrants="<<num_quadrants<<std::endl;
         gettimeofday(&t1, nullptr);
         float quadtree_time=calc_time("quadtree_tbl constrution time=",t0,t1);
 
         //compute polygon bbox on GPU
          auto bbox_tbl=cuspatial::polygon_bounding_boxes(col_poly_fpos->view(),col_poly_rpos->view(),
-            col_poly_x->view(),col_poly_y->view(),this->mr);
+            col_poly_x->view(),col_poly_y->view(),mr);
             
         gettimeofday(&t2, nullptr);
         float polybbox_time=calc_time("compute polygon bbox time=",t1,t2);
@@ -210,7 +222,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         const cudf::table_view bbox_view=bbox_tbl->view();
       
         std::unique_ptr<cudf::table>  pq_pair_tbl = 
-        	cuspatial::join_quadtree_and_bounding_boxes(quad_view, bbox_view, x1, x2, y1, y2, scale, num_level,this->mr);
+        	cuspatial::join_quadtree_and_bounding_boxes(quad_view, bbox_view, x1, x2, y1, y2, scale, num_level,mr);
 
             
         gettimeofday(&t3, nullptr);
@@ -227,7 +239,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
                                                                      col_poly_rpos->view(),
                                                                      col_poly_x->view(),
                                                                      col_poly_y->view(),
-                                                                     this->mr);
+                                                                     mr);
         gettimeofday(&t4, nullptr);
         float refinement_time=calc_time("spatial refinement time=",t3,t4);
         std::cout<<"# of polygon/point pairs="<<pip_pair_tbl->view().num_rows()<<std::endl;
@@ -249,45 +261,45 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         std::cout<<"gpu end-to-tend time"<<gpu_time<<std::endl;
         
         //copy back sorted points to CPU for verification
-        //HANDLE_CUDA_ERROR( cudaMemcpy(h_pnt_x, d_pnt_x,this->num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
-        //HANDLE_CUDA_ERROR( cudaMemcpy(h_pnt_y, d_pnt_y,this->num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
+        //HANDLE_CUDA_ERROR( cudaMemcpy(h_pnt_x, d_pnt_x,num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
+        //HANDLE_CUDA_ERROR( cudaMemcpy(h_pnt_y, d_pnt_y,num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
 
         const uint32_t * d_point_indices=point_indices->view().data<uint32_t>();
-        this->h_point_indices=new uint32_t[this->num_pnts];
-        HANDLE_CUDA_ERROR( cudaMemcpy(h_point_indices, d_point_indices,this->num_pnts * sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
+        h_point_indices=new uint32_t[num_pnts];
+        HANDLE_CUDA_ERROR( cudaMemcpy(h_point_indices, d_point_indices,num_pnts * sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
         
         //setup variables for verifications
         const uint32_t *d_qt_length=quadtree_tbl->view().column(3).data<uint32_t>();
         const uint32_t *d_qt_fpos=quadtree_tbl->view().column(4).data<uint32_t>();
 
-        this->h_qt_length=new uint32_t[this->num_quadrants];
-        this->h_qt_fpos=new uint32_t[this->num_quadrants];
-        assert(this->h_qt_length!=nullptr && this->h_qt_fpos!=nullptr);
+        h_qt_length=new uint32_t[num_quadrants];
+        h_qt_fpos=new uint32_t[num_quadrants];
+        assert(h_qt_length!=nullptr && h_qt_fpos!=nullptr);
 
-        HANDLE_CUDA_ERROR( cudaMemcpy( h_qt_length, d_qt_length, this->num_quadrants * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
-        HANDLE_CUDA_ERROR( cudaMemcpy( h_qt_fpos, d_qt_fpos, this->num_quadrants * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_qt_length, d_qt_length, num_quadrants * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_qt_fpos, d_qt_fpos, num_quadrants * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
 
-        this->num_pq_pairs=pq_pair_tbl->num_rows();
+        num_pq_pairs=pq_pair_tbl->num_rows();
         const uint32_t * d_pq_poly_idx=pq_pair_tbl->view().column(0).data<uint32_t>();
         const uint32_t * d_pq_quad_idx=pq_pair_tbl->view().column(1).data<uint32_t>();
 
-        this->h_pq_poly_idx=new uint32_t[num_pq_pairs];
-        this->h_pq_quad_idx=new uint32_t[num_pq_pairs];
-        assert(this->h_pq_poly_idx!=nullptr && this->h_pq_quad_idx!=nullptr);
+        h_pq_poly_idx=new uint32_t[num_pq_pairs];
+        h_pq_quad_idx=new uint32_t[num_pq_pairs];
+        assert(h_pq_poly_idx!=nullptr && h_pq_quad_idx!=nullptr);
 
-        HANDLE_CUDA_ERROR( cudaMemcpy( this->h_pq_poly_idx, d_pq_poly_idx, num_pq_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
-        HANDLE_CUDA_ERROR( cudaMemcpy( this->h_pq_quad_idx, d_pq_quad_idx, num_pq_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_pq_poly_idx, d_pq_poly_idx, num_pq_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_pq_quad_idx, d_pq_quad_idx, num_pq_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
 
-        this->num_pp_pairs=pip_pair_tbl->num_rows();
+        num_pp_pairs=pip_pair_tbl->num_rows();
         const uint32_t *d_pp_poly_idx=pip_pair_tbl->mutable_view().column(0).data<uint32_t>();
         const uint32_t *d_pp_pnt_idx=pip_pair_tbl->mutable_view().column(1).data<uint32_t>();
 
-        this->h_pp_poly_idx=new uint32_t[num_pp_pairs];
-        this->h_pp_pnt_idx=new uint32_t[num_pp_pairs];
-        assert(this->h_pp_poly_idx!=nullptr && this->h_pp_pnt_idx!=nullptr);
+        h_pp_poly_idx=new uint32_t[num_pp_pairs];
+        h_pp_pnt_idx=new uint32_t[num_pp_pairs];
+        assert(h_pp_poly_idx!=nullptr && h_pp_pnt_idx!=nullptr);
 
-        HANDLE_CUDA_ERROR( cudaMemcpy( this->h_pp_poly_idx, d_pp_poly_idx, num_pp_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
-        HANDLE_CUDA_ERROR( cudaMemcpy( this->h_pp_pnt_idx, d_pp_pnt_idx, num_pp_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_pp_poly_idx, d_pp_poly_idx, num_pp_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) ); 
+        HANDLE_CUDA_ERROR( cudaMemcpy( h_pp_pnt_idx, d_pp_pnt_idx, num_pp_pairs * sizeof(uint32_t), cudaMemcpyDeviceToHost) );
     }
     
     void write_nyc_taxi(const char *file_name)
@@ -296,29 +308,31 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         FILE *fp=fopen(file_name,"wb");
         CUDF_EXPECTS(fp!=NULL, "can not open file for output");
         
-        CUDF_EXPECTS(fwrite(&(this->num_pnts),sizeof(uint32_t),1,fp)==1,"writting num_pnt failed");
-        CUDF_EXPECTS(fwrite(&(this->num_quadrants),sizeof(uint32_t),1,fp)==1,"writting num_quadrants failed");
-        CUDF_EXPECTS(fwrite(&(this->num_pq_pairs),sizeof(uint32_t),1,fp)==1,"writting num_pq_pairs failed");
-        CUDF_EXPECTS(fwrite(&(this->num_pp_pairs),sizeof(uint32_t),1,fp)==1,"writting num_pp_pairs failed");
+        CUDF_EXPECTS(fwrite(&(num_pnts),sizeof(uint32_t),1,fp)==1,"writting num_pnt failed");
+        CUDF_EXPECTS(fwrite(&(num_quadrants),sizeof(uint32_t),1,fp)==1,"writting num_quadrants failed");
+        CUDF_EXPECTS(fwrite(&(num_pq_pairs),sizeof(uint32_t),1,fp)==1,"writting num_pq_pairs failed");
+        CUDF_EXPECTS(fwrite(&(num_pp_pairs),sizeof(uint32_t),1,fp)==1,"writting num_pp_pairs failed");
         
-        CUDF_EXPECTS(fwrite(this->h_pnt_x,sizeof(double),this->num_pnts,fp)==this->num_pnts,"writting h_pnt_x failed");
-        CUDF_EXPECTS(fwrite(this->h_pnt_y,sizeof(double),this->num_pnts,fp)==this->num_pnts,"writting h_pnt_y failed");
-        CUDF_EXPECTS(fwrite(this->h_point_indices,sizeof(uint32_t),this->num_pnts,fp)==this->num_pnts,"writting h_point_indices failed");
+        CUDF_EXPECTS(fwrite(h_pnt_x,sizeof(double),num_pnts,fp)==num_pnts,"writting h_pnt_x failed");
+        CUDF_EXPECTS(fwrite(h_pnt_y,sizeof(double),num_pnts,fp)==num_pnts,"writting h_pnt_y failed");
+        CUDF_EXPECTS(fwrite(h_point_indices,sizeof(uint32_t),num_pnts,fp)==num_pnts,"writting h_point_indices failed");
         
-        CUDF_EXPECTS(fwrite(this->h_qt_length,sizeof(uint32_t),this->num_quadrants,fp)==this->num_quadrants,"writting h_qt_length failed");
-        CUDF_EXPECTS(fwrite(this->h_qt_fpos,sizeof(uint32_t),this->num_quadrants,fp)==this->num_quadrants,"writting h_qt_fpos failed");
+        CUDF_EXPECTS(fwrite(h_qt_length,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"writting h_qt_length failed");
+        CUDF_EXPECTS(fwrite(h_qt_fpos,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"writting h_qt_fpos failed");
         
-        CUDF_EXPECTS(fwrite(this->h_pq_quad_idx,sizeof(uint32_t),this->num_pq_pairs,fp)==this->num_pq_pairs,"writting h_pq_quad_idx failed");
-        CUDF_EXPECTS(fwrite(this->h_pq_poly_idx,sizeof(uint32_t),this->num_pq_pairs,fp)==this->num_pq_pairs,"writting h_pq_poly_idx failed");
+        CUDF_EXPECTS(fwrite(h_pq_quad_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"writting h_pq_quad_idx failed");
+        CUDF_EXPECTS(fwrite(h_pq_poly_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"writting h_pq_poly_idx failed");
         
-        CUDF_EXPECTS(fwrite(this->h_pp_poly_idx,sizeof(uint32_t),this->num_pp_pairs,fp)==this->num_pp_pairs,"writting h_pp_poly_idx failed");
-        CUDF_EXPECTS(fwrite(this->h_pp_pnt_idx,sizeof(uint32_t),this->num_pp_pairs,fp)==this->num_pp_pairs,"writting h_pp_pnt_idx failed");
+        CUDF_EXPECTS(fwrite(h_pp_poly_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"writting h_pp_poly_idx failed");
+        CUDF_EXPECTS(fwrite(h_pp_pnt_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"writting h_pp_pnt_idx failed");
     }    
 };
 
 
-TEST_F(SpatialJoinNYCTaxiTest, test)
+int main()
 {
+    SpatialJoinNYCTaxiTest test;
+    
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
     
@@ -335,7 +349,7 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     //each line repersents a data file, e.g., pickup+drop-off locations for a month
     std::string catalog_filename=std::string(env_p)+std::string("2009.cat"); 
     std::cout<<"Using catalog file "<<catalog_filename<<std::endl;
-    this->setup_points(catalog_filename.c_str(),first_n);
+    test.setup_points(catalog_filename.c_str(),first_n);
 
     std::cout<<"loading NYC polygon data..........."<<std::endl;
 
@@ -352,7 +366,7 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     
     std::cout<<"Using shapefile "<<shape_filename<<std::endl;
 
-    SBBox<double> aoi=this->setup_polygons(shape_filename.c_str());
+    SBBox<double> aoi=test.setup_polygons(shape_filename.c_str());
 
     double poly_x1=thrust::get<0>(aoi.first);
     double poly_y1=thrust::get<1>(aoi.first);
@@ -370,9 +384,10 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     printf("Area of Interests: length=%15.10f scale=%15.10f\n",length,scale);
 
     std::cout<<"running test on NYC taxi trip data..........."<<std::endl;
-    this->run_test(bbox_x1,bbox_y1,bbox_x2,bbox_y2,scale,num_level,min_size);
+    test.run_test(bbox_x1,bbox_y1,bbox_x2,bbox_y2,scale,num_level,min_size);
     
-    this->write_nyc_taxi(bin_files[sel_id]);
-
-}//TEST_F
+    write_nyc_taxi(bin_files[sel_id]);
+    
+    return(0); 
+}
 
