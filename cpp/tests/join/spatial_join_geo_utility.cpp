@@ -328,7 +328,6 @@ void matched_pairs_ogr_pip_test(uint32_t num_print_interval,const std::vector<ui
         uint32_t fpos=h_qt_fpos[qid];
         for(uint32_t i=0;i<qlen;i++)
         {
-            assert(fpos+i<num_counts);
             OGRPoint pnt(h_pnt_x[fpos+i],h_pnt_y[fpos+i]);
             std::vector<uint32_t> temp_vec;
             if(h_ogr_polygon_vec[pid]->Contains(&pnt))
@@ -447,7 +446,6 @@ void matched_pairs_geos_pip_test(uint32_t num_print_interval,const std::vector<u
         uint32_t fpos=h_qt_fpos[qid];
         for(uint32_t i=0;i<qlen;i++)
         {
-            assert(fpos+i<num_counts);
             GEOSCoordSequence* seq = GEOSCoordSeq_create(1, 2);
             GEOSCoordSeq_setX(seq, 0, h_pnt_x[fpos+i]);
             GEOSCoordSeq_setY(seq, 0, h_pnt_y[fpos+i]);

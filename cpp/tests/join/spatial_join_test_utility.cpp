@@ -42,7 +42,6 @@ void gen_rand_idx(std::vector<uint32_t>& indices,uint32_t num_counts, uint32_t n
     }
     else
              std::cout<<"num_samples="<<num_samples<<" must be less or equal to num_counts="<<num_counts;
-   assert(indices!=nullptr);
 }
 
 size_t read_point_binary(const char *fn,double*& h_pnt_x,double*& h_pnt_y)
