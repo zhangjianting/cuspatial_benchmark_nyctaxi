@@ -91,10 +91,6 @@ set(PIP_JOIN_NYCTAXI_VERIFY_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cu")  
 ConfigureTest(PIP_JOIN_NYCTAXI_VERIFY "${PIP_JOIN_NYCTAXI_VERIFY_SRC}")
 
-set(PIP_JOIN_TOY_TEST_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_toy_test.cu"  
-    "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp")
-ConfigureTest(PIP_JOIN_TOY_TEST "${PIP_JOIN_TOY_TEST_SRC}")
 
 set(PIP_JOIN_TOY_VERIFY_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_toy_verify.cpp"  
