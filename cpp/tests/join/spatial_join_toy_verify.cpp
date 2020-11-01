@@ -1,9 +1,8 @@
-#include <cudf_test/base_fixture.hpp>
 
 #include "spatial_join_test_utility.hpp"
 #include "spatial_join_geo_utility.hpp"
 
-struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
+struct SpatialJoinNYCTaxiVerify
 {
     uint32_t num_pnts=0;
 
@@ -49,6 +48,8 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
 
     void setup_polygons(const char *file_name)
     {
+        SpatialJoinNYCTaxiVerify test;
+
         std::vector<int> g_len_v,f_len_v,r_len_v;
         std::vector<double> x_v, y_v;
         GDALAllRegister();
@@ -61,9 +62,9 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
         //a shapefile abstracted as a GDALDatasetGetLayer typically has only one layer
         OGRLayerH hLayer = GDALDatasetGetLayer( hDS,0 );
 
-        this->h_ogr_polygon_vec.clear();
-        this->h_geos_polygon_vec.clear();
-        this->h_org_poly_idx_vec.clear();
+        test.h_ogr_polygon_vec.clear();
+        test.h_geos_polygon_vec.clear();
+        test.h_org_poly_idx_vec.clear();
 
         //type: 0 for all, 1 for simple polygons and 2 for multi-polygons
         uint8_t type=0;
@@ -80,16 +81,16 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
         }
 
         //num_group=g_len_v.size();
-        this->num_poly=f_len_v.size();
-        this->num_ring=r_len_v.size();
-        this->num_vertex=x_v.size();
+        test.num_poly=f_len_v.size();
+        test.num_ring=r_len_v.size();
+        test.num_vertex=x_v.size();
 
         uint32_t *h_poly_flen=new uint32_t[num_poly];
         uint32_t *h_poly_rlen=new uint32_t[num_ring];
         assert(h_poly_flen!=nullptr && h_poly_rlen!=nullptr);
 
-        this->h_poly_x=new double [num_vertex];
-        this->h_poly_y=new double [num_vertex];
+        test.h_poly_x=new double [num_vertex];
+        test.h_poly_y=new double [num_vertex];
         assert(h_poly_x!=nullptr && h_poly_y!=nullptr);
 
         std::copy_n(f_len_v.begin(),num_poly,h_poly_flen);
@@ -108,12 +109,12 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
 
     void compare_random_points(uint32_t num_samples,uint32_t num_print_interval,bool using_geos)
     {
-        std::cout<<"compare_random_points: num_quadrants="<<this->num_quadrants
-            <<" num_pp_pair="<<this->num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
+        std::cout<<"compare_random_points: num_quadrants="<<test.num_quadrants
+            <<" num_pp_pair="<<test.num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
 
         std::vector<uint32_t> rand_indices;
-        //gen_rand_idx(rand_indices,this->num_pnts,num_samples);
-        for(int i=0;i<this->num_pnts;i++)
+        //gen_rand_idx(rand_indices,test.num_pnts,num_samples);
+        for(int i=0;i<test.num_pnts;i++)
             rand_indices.push_back(i);
 
         timeval t0,t1;
@@ -123,13 +124,13 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
 
         if(using_geos)
         {
-            rand_points_geos_pip_test(num_print_interval,rand_indices, this->h_geos_polygon_vec,this->h_pnt_idx_vec,
-                this->h_pnt_len_vec,this->h_poly_idx_vec,this->h_pnt_x,this->h_pnt_y,this->h_point_indices);
+            rand_points_geos_pip_test(num_print_interval,rand_indices, test.h_geos_polygon_vec,test.h_pnt_idx_vec,
+                test.h_pnt_len_vec,test.h_poly_idx_vec,test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
         }
         else
         {
-            rand_points_ogr_pip_test(num_print_interval,rand_indices, this->h_ogr_polygon_vec,this->h_pnt_idx_vec,
-                this->h_pnt_len_vec,this->h_poly_idx_vec,this->h_pnt_x,this->h_pnt_y,this->h_point_indices);
+            rand_points_ogr_pip_test(num_print_interval,rand_indices, test.h_ogr_polygon_vec,test.h_pnt_idx_vec,
+                test.h_pnt_len_vec,test.h_poly_idx_vec,test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
          }
         gettimeofday(&t1, nullptr);
         float cpu_time=calc_time("cpu random sampling computing time = ",t0,t1);
@@ -137,11 +138,11 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
 
     void compare_matched_pairs(uint32_t num_samples,uint32_t num_print_interval,bool using_geos)
     {
-        std::cout<<"compare_matched_pairs: num_quadrants="<<this->num_quadrants<<" num_pq_pairs"<<this->num_pq_pairs
-            <<" num_pp_pair="<<this->num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
+        std::cout<<"compare_matched_pairs: num_quadrants="<<test.num_quadrants<<" num_pq_pairs"<<test.num_pq_pairs
+            <<" num_pp_pair="<<test.num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
 
         std::vector<uint32_t> rand_indices;
-        gen_rand_idx(rand_indices,this->num_pq_pairs,num_samples);
+        gen_rand_idx(rand_indices,test.num_pq_pairs,num_samples);
 
         timeval t0,t1;
         gettimeofday(&t0, nullptr);
@@ -149,16 +150,16 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
         if(using_geos)
         {
             matched_pairs_geos_pip_test(num_print_interval,rand_indices,
-                this->h_pq_quad_idx,this->h_pq_poly_idx,this->h_qt_length,this->h_qt_fpos,
-                this->h_geos_polygon_vec,this->h_pnt_idx_vec,this->h_pnt_len_vec,this->h_poly_idx_vec,
-                this->h_pnt_x,this->h_pnt_y,this->h_point_indices);
+                test.h_pq_quad_idx,test.h_pq_poly_idx,test.h_qt_length,test.h_qt_fpos,
+                test.h_geos_polygon_vec,test.h_pnt_idx_vec,test.h_pnt_len_vec,test.h_poly_idx_vec,
+                test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
         }
         else
         {
             matched_pairs_ogr_pip_test(num_print_interval,rand_indices,
-                this->h_pq_quad_idx,this->h_pq_poly_idx,this->h_qt_length,this->h_qt_fpos,
-                this->h_ogr_polygon_vec,this->h_pnt_idx_vec,this->h_pnt_len_vec,this->h_poly_idx_vec,
-                this->h_pnt_x,this->h_pnt_y,this->h_point_indices);
+                test.h_pq_quad_idx,test.h_pq_poly_idx,test.h_qt_length,test.h_qt_fpos,
+                test.h_ogr_polygon_vec,test.h_pnt_idx_vec,test.h_pnt_len_vec,test.h_poly_idx_vec,
+                test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
 
         }
         gettimeofday(&t1, nullptr);
@@ -170,71 +171,71 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
         CUDF_EXPECTS(file_name!=NULL,"file_name can not be NULL");
         FILE *fp=fopen(file_name,"rb");
         CUDF_EXPECTS(fp!=NULL, "can not open file for input");
-        CUDF_EXPECTS(fread(&(this->num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
-        CUDF_EXPECTS(fread(&(this->num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
-        CUDF_EXPECTS(fread(&(this->num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
-        CUDF_EXPECTS(fread(&(this->num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
-        std::cout<<"num_pnts="<<this->num_pnts<<" num_quadrants="<<this->num_quadrants<<" num_pq_pairs="<<this->num_pq_pairs<<" num_pp_pairs="<<this->num_pp_pairs<<std::endl;
+        CUDF_EXPECTS(fread(&(test.num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
+        CUDF_EXPECTS(fread(&(test.num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
+        CUDF_EXPECTS(fread(&(test.num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
+        CUDF_EXPECTS(fread(&(test.num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
+        std::cout<<"num_pnts="<<test.num_pnts<<" num_quadrants="<<test.num_quadrants<<" num_pq_pairs="<<test.num_pq_pairs<<" num_pp_pairs="<<test.num_pp_pairs<<std::endl;
 
         std::cout<<"reading points..."<<std::endl;
-        this->h_pnt_x=new double[this->num_pnts];
-        this->h_pnt_y=new double[this->num_pnts];
-        this->h_point_indices= new uint32_t[this->num_pnts];
-        CUDF_EXPECTS( this->h_pnt_x!=NULL && this->h_pnt_y!=NULL && this->h_point_indices!=NULL	 ,"allocating memory for points on host failed");
+        test.h_pnt_x=new double[test.num_pnts];
+        test.h_pnt_y=new double[test.num_pnts];
+        test.h_point_indices= new uint32_t[test.num_pnts];
+        CUDF_EXPECTS( test.h_pnt_x!=NULL && test.h_pnt_y!=NULL && test.h_point_indices!=NULL	 ,"allocating memory for points on host failed");
 
-        CUDF_EXPECTS(fread(this->h_pnt_x,sizeof(double),this->num_pnts,fp)==this->num_pnts,"reading h_pnt_x failed");
-        CUDF_EXPECTS(fread(this->h_pnt_y,sizeof(double),this->num_pnts,fp)==this->num_pnts,"reading h_pnt_y failed");
-        CUDF_EXPECTS(fread(this->h_point_indices,sizeof(uint32_t),this->num_pnts,fp)==this->num_pnts,"reading h_point_indices failed");
+        CUDF_EXPECTS(fread(test.h_pnt_x,sizeof(double),test.num_pnts,fp)==test.num_pnts,"reading h_pnt_x failed");
+        CUDF_EXPECTS(fread(test.h_pnt_y,sizeof(double),test.num_pnts,fp)==test.num_pnts,"reading h_pnt_y failed");
+        CUDF_EXPECTS(fread(test.h_point_indices,sizeof(uint32_t),test.num_pnts,fp)==test.num_pnts,"reading h_point_indices failed");
 
-        thrust::copy(this->h_pnt_x,this->h_pnt_x+this->num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
-        thrust::copy(this->h_pnt_y,this->h_pnt_y+this->num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
-        thrust::copy(this->h_point_indices,this->h_point_indices+this->num_pnts,std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(test.h_pnt_x,test.h_pnt_x+test.num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(test.h_pnt_y,test.h_pnt_y+test.num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(test.h_point_indices,test.h_point_indices+test.num_pnts,std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
 
         std::cout<<"reading quadrants..."<<std::endl;
-        this->h_qt_length=new uint32_t[this->num_quadrants];
-        this->h_qt_fpos=new uint32_t[this->num_quadrants];
-        CUDF_EXPECTS( this->h_qt_length!=NULL && this->h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
+        test.h_qt_length=new uint32_t[test.num_quadrants];
+        test.h_qt_fpos=new uint32_t[test.num_quadrants];
+        CUDF_EXPECTS( test.h_qt_length!=NULL && test.h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
 
-        CUDF_EXPECTS(fread(this->h_qt_length,sizeof(uint32_t),this->num_quadrants,fp)==this->num_quadrants,"reading h_qt_length failed");
-        CUDF_EXPECTS(fread(this->h_qt_fpos,sizeof(uint32_t),this->num_quadrants,fp)==this->num_quadrants,"reading h_qt_fpos failed");
+        CUDF_EXPECTS(fread(test.h_qt_length,sizeof(uint32_t),test.num_quadrants,fp)==test.num_quadrants,"reading h_qt_length failed");
+        CUDF_EXPECTS(fread(test.h_qt_fpos,sizeof(uint32_t),test.num_quadrants,fp)==test.num_quadrants,"reading h_qt_fpos failed");
 
         std::cout<<"reading quadrant/polygon pairs..."<<std::endl;
-        this->h_pq_quad_idx=new uint32_t[this->num_pq_pairs];
-        this->h_pq_poly_idx=new uint32_t[this->num_pq_pairs];
-        CUDF_EXPECTS( this->h_pq_poly_idx!=NULL && this->h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
+        test.h_pq_quad_idx=new uint32_t[test.num_pq_pairs];
+        test.h_pq_poly_idx=new uint32_t[test.num_pq_pairs];
+        CUDF_EXPECTS( test.h_pq_poly_idx!=NULL && test.h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(this->h_pq_quad_idx,sizeof(uint32_t),this->num_pq_pairs,fp)==this->num_pq_pairs,"reading h_pq_quad_idx failed");
-        CUDF_EXPECTS(fread(this->h_pq_poly_idx,sizeof(uint32_t),this->num_pq_pairs,fp)==this->num_pq_pairs,"reading h_pq_poly_idx failed");
+        CUDF_EXPECTS(fread(test.h_pq_quad_idx,sizeof(uint32_t),test.num_pq_pairs,fp)==test.num_pq_pairs,"reading h_pq_quad_idx failed");
+        CUDF_EXPECTS(fread(test.h_pq_poly_idx,sizeof(uint32_t),test.num_pq_pairs,fp)==test.num_pq_pairs,"reading h_pq_poly_idx failed");
 
         std::cout<<"reading point/polygon pairs..."<<std::endl;
-        this->h_pp_poly_idx=new uint32_t[this->num_pp_pairs];
-        this->h_pp_pnt_idx=new uint32_t[this->num_pp_pairs];
-        CUDF_EXPECTS(this->h_pp_poly_idx!=NULL && this->h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
+        test.h_pp_poly_idx=new uint32_t[test.num_pp_pairs];
+        test.h_pp_pnt_idx=new uint32_t[test.num_pp_pairs];
+        CUDF_EXPECTS(test.h_pp_poly_idx!=NULL && test.h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(this->h_pp_poly_idx,sizeof(uint32_t),this->num_pp_pairs,fp)==this->num_pp_pairs,"reading h_pp_poly_idx failed");
-        CUDF_EXPECTS(fread(this->h_pp_pnt_idx,sizeof(uint32_t),this->num_pp_pairs,fp)==this->num_pp_pairs,"reading h_pp_pnt_idx failed");
+        CUDF_EXPECTS(fread(test.h_pp_poly_idx,sizeof(uint32_t),test.num_pp_pairs,fp)==test.num_pp_pairs,"reading h_pp_poly_idx failed");
+        CUDF_EXPECTS(fread(test.h_pp_pnt_idx,sizeof(uint32_t),test.num_pp_pairs,fp)==test.num_pp_pairs,"reading h_pp_pnt_idx failed");
 
-        for(int i=0;i<this->num_pp_pairs;i++)
+        for(int i=0;i<test.num_pp_pairs;i++)
         {
-           uint32_t pid=this->h_point_indices[this->h_pp_pnt_idx[i]];
-           printf("%d,%10.5f, %10.5f, %d\n",i,this->h_pnt_x[pid],this->h_pnt_y[pid],this->h_pp_poly_idx[i]);
+           uint32_t pid=test.h_point_indices[test.h_pp_pnt_idx[i]];
+           printf("%d,%10.5f, %10.5f, %d\n",i,test.h_pnt_x[pid],test.h_pnt_y[pid],test.h_pp_poly_idx[i]);
 	   }
 
     }
 
     void tear_down()
     {
-        delete[] this->h_poly_x; this->h_poly_x=nullptr;
-        delete[] this->h_poly_y; this->h_poly_y=nullptr;
+        delete[] test.h_poly_x; test.h_poly_x=nullptr;
+        delete[] test.h_poly_y; test.h_poly_y=nullptr;
 
-        delete[] this->h_pnt_x; this->h_pnt_x=nullptr;
+        delete[] test.h_pnt_x; test.h_pnt_x=nullptr;
         delete[] h_pnt_y; h_pnt_y=nullptr;
 
-        delete[] this->h_pq_quad_idx; this->h_pq_quad_idx=nullptr;
+        delete[] test.h_pq_quad_idx; test.h_pq_quad_idx=nullptr;
         delete[] h_pq_poly_idx; h_pq_poly_idx=nullptr;
 
-        delete[] this->h_qt_length; this->h_qt_length=nullptr;
-        delete[] this->h_qt_fpos; this->h_qt_fpos=nullptr;
+        delete[] test.h_qt_length; test.h_qt_length=nullptr;
+        delete[] test.h_qt_fpos; test.h_qt_fpos=nullptr;
     }
 
 };
@@ -245,8 +246,7 @@ struct SpatialJoinNYCTaxiVerify : public cudf::test::BaseFixture
  * choose from compare_random_points and compare_matched_pairs
 */
 
-TEST_F(SpatialJoinNYCTaxiVerify, verify)
-{
+int main(){
 
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
@@ -254,7 +254,7 @@ TEST_F(SpatialJoinNYCTaxiVerify, verify)
     read_points_bin("toy_points.bin");
 
     std::string shape_filename=std::string(env_p)+std::string("quad_test_ply.shp");
-    this->setup_polygons(shape_filename.c_str());
+    test.setup_polygons(shape_filename.c_str());
 
     std::cout<<"running GDAL/OGR or GEOS CPU code for comparison/verification..........."<<std::endl;
 
@@ -263,13 +263,13 @@ TEST_F(SpatialJoinNYCTaxiVerify, verify)
     bool using_geos=true;
 
     //type 1: random points
-    uint32_t num_pnt_samples=this->num_pnts;
+    uint32_t num_pnt_samples=test.num_pnts;
     //uint32_t num_pnt_samples=200;
-    this->compare_random_points(num_pnt_samples,num_print_interval,using_geos);
+    test.compare_random_points(num_pnt_samples,num_print_interval,using_geos);
 
     //type 2: random quadrant/polygon pairs
     //uint32_t num_quad_samples=10000;
-    //this->compare_matched_pairs(num_quad_samples,num_print_interval,using_geos);
+    //test.compare_matched_pairs(num_quad_samples,num_print_interval,using_geos);
 
     std::cout<<"h_pnt_idx_vec.size()="<<h_pnt_idx_vec.size()<<std::endl;
     thrust::copy(h_pnt_idx_vec.begin(),h_pnt_idx_vec.end(),std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
@@ -280,13 +280,14 @@ TEST_F(SpatialJoinNYCTaxiVerify, verify)
     uint32_t * h_poly_search_idx=&(h_poly_idx_vec[0]);
 
 
-    bool verified=compute_mismatch(this->num_pp_pairs,this->h_org_poly_idx_vec,
-        h_pnt_search_idx,this->h_pnt_len_vec,h_poly_search_idx,
-        this->h_pp_pnt_idx,this->h_pp_poly_idx,
-        this->h_pnt_x,this->h_pnt_y);
+    bool verified=compute_mismatch(test.num_pp_pairs,test.h_org_poly_idx_vec,
+        h_pnt_search_idx,test.h_pnt_len_vec,h_poly_search_idx,
+        test.h_pp_pnt_idx,test.h_pp_poly_idx,
+        test.h_pnt_x,test.h_pnt_y);
     std::string msg=verified ? "verified" : "mismatch";
     std::cout<<"comparison/verification result: " << msg << std::endl;
-    this->tear_down();
+    test.tear_down();
 
-}//TEST_F
+    return(0);
+}
 
