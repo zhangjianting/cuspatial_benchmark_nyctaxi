@@ -336,6 +336,8 @@ struct SpatialJoinNYCTaxiTest
 
 void main()
 {
+    SpatialJoinNYCTaxiTest test;
+    
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
     
@@ -343,12 +345,12 @@ void main()
     uint32_t const max_depth{3};
     uint32_t const min_size{400};
     double const scale{1.0};
-    this->setup_points(min_size);        
+    test.setup_points(min_size);        
 
     std::cout<<"loading polygon data..........."<<std::endl;
     std::string shape_filename=std::string(env_p)+std::string("quad_test_ply.shp");     
     std::cout<<"Using shapefile "<<shape_filename<<std::endl;
-    SBBox<double> aoi=this->setup_polygons(shape_filename.c_str());
+    SBBox<double> aoi=test.setup_polygons(shape_filename.c_str());
 
     //verify all polygon vertices (x,y) in the shapefile are between [0.0,8.0) and [0.0,8.0) 
     
@@ -360,9 +362,9 @@ void main()
     printf("x1=%10.5f y1=%10.5f x2=%10.5f y2=%10.5f\n",poly_x1,poly_y1,poly_x2,poly_y2);
     
     std::cout<<"running test on toy data..........."<<std::endl;
-    this->run_test(0.0,0.0,8.0,8.0,scale,max_depth,min_size);
+    test.run_test(0.0,0.0,8.0,8.0,scale,max_depth,min_size);
     
-    this->write_points_bin("toy_points.bin");
+    test.write_points_bin("toy_points.bin");
 
-}//TEST_F
+}
 
