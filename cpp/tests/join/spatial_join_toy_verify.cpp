@@ -3,7 +3,7 @@
 #include <cassert>
 #include <algorithm>
 
-#include <thrust/host_vector.h>
+#include <thrust/host_vector.h
 #include <thrust/copy.h>
 
 #include <cuspatial/error.hpp>
@@ -88,9 +88,9 @@ struct SpatialJoinNYCTaxiVerify
         }
 
         //num_group=g_len_v.size();
-        test.num_poly=f_len_v.size();
-        test.num_ring=r_len_v.size();
-        test.num_vertex=x_v.size();
+        num_poly=f_len_v.size();
+        num_ring=r_len_v.size();
+        num_vertex=x_v.size();
 
         uint32_t *h_poly_flen=new uint32_t[num_poly];
         uint32_t *h_poly_rlen=new uint32_t[num_ring];
@@ -175,24 +175,24 @@ struct SpatialJoinNYCTaxiVerify
 
     void read_points_bin(const char *file_name)
     {
-        CUDF_EXPECTS(file_name!=NULL,"file_name can not be NULL");
+        CUSPATIAL_EXPECTS(file_name!=NULL,"file_name can not be NULL");
         FILE *fp=fopen(file_name,"rb");
-        CUDF_EXPECTS(fp!=NULL, "can not open file for input");
-        CUDF_EXPECTS(fread(&(num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
-        CUDF_EXPECTS(fread(&(num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
-        CUDF_EXPECTS(fread(&(num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
-        CUDF_EXPECTS(fread(&(num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
+        CUSPATIAL_EXPECTS(fp!=NULL, "can not open file for input");
+        CUSPATIAL_EXPECTS(fread(&(num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
+        CUSPATIAL_EXPECTS(fread(&(num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
+        CUSPATIAL_EXPECTS(fread(&(num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
+        CUSPATIAL_EXPECTS(fread(&(num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
         std::cout<<"num_pnts="<<num_pnts<<" num_quadrants="<<num_quadrants<<" num_pq_pairs="<<num_pq_pairs<<" num_pp_pairs="<<num_pp_pairs<<std::endl;
 
         std::cout<<"reading points..."<<std::endl;
         h_pnt_x=new double[num_pnts];
         h_pnt_y=new double[num_pnts];
         h_point_indices= new uint32_t[num_pnts];
-        CUDF_EXPECTS( h_pnt_x!=NULL && h_pnt_y!=NULL && h_point_indices!=NULL	 ,"allocating memory for points on host failed");
+        CUSPATIAL_EXPECTS( h_pnt_x!=NULL && h_pnt_y!=NULL && h_point_indices!=NULL	 ,"allocating memory for points on host failed");
 
-        CUDF_EXPECTS(fread(h_pnt_x,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_x failed");
-        CUDF_EXPECTS(fread(h_pnt_y,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_y failed");
-        CUDF_EXPECTS(fread(h_point_indices,sizeof(uint32_t),num_pnts,fp)==num_pnts,"reading h_point_indices failed");
+        CUSPATIAL_EXPECTS(fread(h_pnt_x,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_x failed");
+        CUSPATIAL_EXPECTS(fread(h_pnt_y,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_y failed");
+        CUSPATIAL_EXPECTS(fread(h_point_indices,sizeof(uint32_t),num_pnts,fp)==num_pnts,"reading h_point_indices failed");
 
         thrust::copy(h_pnt_x,h_pnt_x+num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
         thrust::copy(h_pnt_y,h_pnt_y+num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
@@ -201,26 +201,26 @@ struct SpatialJoinNYCTaxiVerify
         std::cout<<"reading quadrants..."<<std::endl;
         h_qt_length=new uint32_t[num_quadrants];
         h_qt_fpos=new uint32_t[num_quadrants];
-        CUDF_EXPECTS( h_qt_length!=NULL && h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
+        CUSPATIAL_EXPECTS( h_qt_length!=NULL && h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
 
-        CUDF_EXPECTS(fread(h_qt_length,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_length failed");
-        CUDF_EXPECTS(fread(h_qt_fpos,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_fpos failed");
+        CUSPATIAL_EXPECTS(fread(h_qt_length,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_length failed");
+        CUSPATIAL_EXPECTS(fread(h_qt_fpos,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_fpos failed");
 
         std::cout<<"reading quadrant/polygon pairs..."<<std::endl;
         h_pq_quad_idx=new uint32_t[num_pq_pairs];
         h_pq_poly_idx=new uint32_t[num_pq_pairs];
-        CUDF_EXPECTS( h_pq_poly_idx!=NULL && h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
+        CUSPATIAL_EXPECTS( h_pq_poly_idx!=NULL && h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(h_pq_quad_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_quad_idx failed");
-        CUDF_EXPECTS(fread(h_pq_poly_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_poly_idx failed");
+        CUSPATIAL_EXPECTS(fread(h_pq_quad_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_quad_idx failed");
+        CUSPATIAL_EXPECTS(fread(h_pq_poly_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_poly_idx failed");
 
         std::cout<<"reading point/polygon pairs..."<<std::endl;
         h_pp_poly_idx=new uint32_t[num_pp_pairs];
         h_pp_pnt_idx=new uint32_t[num_pp_pairs];
-        CUDF_EXPECTS(h_pp_poly_idx!=NULL && h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
+        CUSPATIAL_EXPECTS(h_pp_poly_idx!=NULL && h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(h_pp_poly_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_poly_idx failed");
-        CUDF_EXPECTS(fread(h_pp_pnt_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_pnt_idx failed");
+        CUSPATIAL_EXPECTS(fread(h_pp_poly_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_poly_idx failed");
+        CUSPATIAL_EXPECTS(fread(h_pp_pnt_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_pnt_idx failed");
 
         for(int i=0;i<num_pp_pairs;i++)
         {
@@ -258,7 +258,7 @@ int main(){
     SpatialJoinNYCTaxiVerify test;
 
     const char* env_p = std::getenv("CUSPATIAL_DATA");
-    CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
+    CUSPATIAL_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
 
     test.read_points_bin("toy_points.bin");
 
