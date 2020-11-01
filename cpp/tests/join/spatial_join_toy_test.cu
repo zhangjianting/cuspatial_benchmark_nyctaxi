@@ -23,9 +23,9 @@
 #include "spatial_join_test_utility.hpp"
 
 
-std::unique_ptr<cudf::column> make_numeric_column(data_type type,
+std::unique_ptr<cudf::column> make_numeric_column(cudf::data_type type,
                                             size_type size,
-                                            mask_state state,
+                                            cudf::mask_state state,
                                             cudaStream_t stream,
                                             rmm::mr::device_memory_resource* mr)
 {
