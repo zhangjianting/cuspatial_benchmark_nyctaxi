@@ -346,7 +346,7 @@ struct SpatialJoinNYCTaxiTest
 };
 
 
-void main()
+int main()
 {
     SpatialJoinNYCTaxiTest test;
     
@@ -377,6 +377,7 @@ void main()
     test.run_test(0.0,0.0,8.0,8.0,scale,max_depth,min_size);
     
     test.write_points_bin("toy_points.bin");
-
+    
+    return(0);
 }
 
