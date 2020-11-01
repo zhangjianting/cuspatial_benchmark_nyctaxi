@@ -208,10 +208,15 @@ struct SpatialJoinNYCTaxiTest
         std::unique_ptr<cudf::table>  pq_pair_tbl = 
         	cuspatial::join_quadtree_and_bounding_boxes(quad_view, bbox_view, x1, x2, y1, y2, scale, num_level,this->mr);
 
-        thrust::host_vector<uint32_t> const &pq_poly_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(0)).first;
-        thrust::host_vector<uint32_t> const &pq_quad_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(1)).first;
         uint32_t num_pq_pairs=pq_pair_tbl->num_rows();
-        printf("num_pq_pairs=%d\n",num_pq_pairs);
+ 
+        thrust::host_vector<uint32_t> pq_poly_id(num_pq_pairs);
+        thrust::host_vector<uint32_t> pq_quad_id(num_pq_pairs);
+        
+        HANDLE_CUDA_ERROR( cudaMemcpy(pq_poly_id.data(), pq_pair_tbl->get_column(0).data(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
+        HANDLE_CUDA_ERROR( cudaMemcpy(pq_quad_id.data(), pq_pair_tbl->get_column(1).data(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
+               
+       printf("num_pq_pairs=%d\n",num_pq_pairs);
         for(uint32_t i=0;i<num_pq_pairs;i++)
         {
 		   printf("%d, %d, %d\n",i,pq_poly_id[i],pq_quad_id[i]);
