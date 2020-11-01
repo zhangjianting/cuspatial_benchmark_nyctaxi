@@ -25,12 +25,18 @@ inline auto generate_points(std::vector<std::vector<T>> const &quads, uint32_t p
 {
   std::vector<T> point_x(quads.size() * points_per_quad);
   std::vector<T> point_y(quads.size() * points_per_quad);
+
+  std::seed_seq seed{time(0)};
+  std::mt19937 g(seed);
+  
   for (uint32_t i = 0, pos = 0; i < quads.size(); i++, pos += points_per_quad) {
-    cudf::test::UniformRandomGenerator<T> dist_x{quads[i][0], quads[i][1]};
-    cudf::test::UniformRandomGenerator<T> dist_y{quads[i][2], quads[i][3]};
+    std::uniform_real_distribution<> dist_x (dist_x{quads[i][0], quads[i][1]};
+    std::uniform_real_distribution<> dist_y (dist_x{quads[i][0], quads[i][1]};
+
     std::generate(point_x.begin() + pos, point_x.begin() + pos + points_per_quad, [&]() mutable {
       return dist_x.generate();
     });
+
     std::generate(point_y.begin() + pos, point_y.begin() + pos + points_per_quad, [&]() mutable {
       return dist_y.generate();
     });
