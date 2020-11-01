@@ -22,6 +22,24 @@
 #include "spatial_join_test_utility.cuh"
 #include "spatial_join_test_utility.hpp"
 
+
+std::unique_ptr<column> make_numeric_column(data_type type,
+                                            size_type size,
+                                            mask_state state,
+                                            cudaStream_t stream,
+                                            rmm::mr::device_memory_resource* mr)
+{
+  CUDF_FUNC_RANGE();
+  CUDF_EXPECTS(is_numeric(type), "Invalid, non-numeric type.");
+
+  return std::make_unique<column>(type,
+                                  size,
+                                  rmm::device_buffer{size * cudf::size_of(type), stream, mr},
+                                  create_null_mask(size, state, stream, mr),
+                                  state_null_count(state, size),
+                                  std::vector<std::unique_ptr<column>>{});
+}
+
 template <typename T>
 inline auto generate_points(std::vector<std::vector<T>> const &quads, uint32_t points_per_quad)
 {
@@ -161,13 +179,13 @@ struct SpatialJoinNYCTaxiTest
         std::cout<<"read_point: x_min="<<x1<<"  y_min="<<y1<<" x_max="<<x2<<" y_max="<<y2<<std::endl;
 
         //create x/y columns, expose their raw pointers to be used in run_test() and populate x/y arrays
-        this->col_pnt_x = std::make_unique<cudf::column>( cudf::data_type{cudf::type_id::FLOAT64}, 
+        this->col_pnt_x = make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
             this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
         double *d_pnt_x=cudf::mutable_column_device_view::create(col_pnt_x->mutable_view(), stream)->data<double>();
         assert(d_pnt_x!=nullptr);
         HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_x, h_pnt_x, this->num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
 
-        this->col_pnt_y = std::make_unique<cudf::column>( cudf::data_type{cudf::type_id::FLOAT64}, 
+        this->col_pnt_y = make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
             this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
         double *d_pnt_y=cudf::mutable_column_device_view::create(col_pnt_y->mutable_view(), stream)->data<double>();
         assert(d_pnt_y!=nullptr);    
