@@ -3,6 +3,10 @@
 #include <cassert>
 #include <algorithm>
 
+#include <thrust/copy>
+
+#include <cuspatial/error.hpp>
+
 #include "spatial_join_test_utility.hpp"
 #include "spatial_join_geo_utility.hpp"
 
@@ -255,7 +259,7 @@ int main(){
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
 
-    read_points_bin("toy_points.bin");
+    test.read_points_bin("toy_points.bin");
 
     std::string shape_filename=std::string(env_p)+std::string("quad_test_ply.shp");
     test.setup_polygons(shape_filename.c_str());
@@ -290,6 +294,7 @@ int main(){
         test.h_pnt_x,test.h_pnt_y);
     std::string msg=verified ? "verified" : "mismatch";
     std::cout<<"comparison/verification result: " << msg << std::endl;
+
     test.tear_down();
 
     return(0);
