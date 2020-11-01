@@ -228,19 +228,6 @@ if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 
-include_directories("${CMAKE_BINARY_DIR}/include"
-                    "${CMAKE_SOURCE_DIR}/include"
-                    "${CMAKE_SOURCE_DIR}/src"
-                    "${CMAKE_SOURCE_DIR}/../thirdparty/cub"
-                    "${GDAL_INCLUDE_DIR}"
-                    "${RMM_INCLUDE}"
-                    "${CUDF_SRC_INCLUDE}"
-                    "${CUDF_INCLUDE}"
-                    "${CUB_INCLUDE}"
-                    "${SIMT_INCLUDE}"
-                    "${JITIFY_INCLUDE}")
-
-
 ###################################################################################################
 # - library paths ---------------------------------------------------------------------------------
 
