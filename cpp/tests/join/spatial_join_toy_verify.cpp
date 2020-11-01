@@ -1,4 +1,5 @@
-
+#include <stdint.h>
+#include <iostream>
 #include "spatial_join_test_utility.hpp"
 #include "spatial_join_geo_utility.hpp"
 
