@@ -222,9 +222,37 @@ if(BUILD_TESTS)
     endif(GTEST_FOUND)
 endif(BUILD_TESTS)
 
+###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
+
+include_directories("${THRUST_INCLUDE_DIR}"
+                    "${LIBCUDACXX_INCLUDE_DIR}")
 
 if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 
+include_directories("${CMAKE_BINARY_DIR}/include"
+                    "${CMAKE_SOURCE_DIR}/include"
+                    "${CMAKE_SOURCE_DIR}/src"
+                    "${GDAL_INCLUDE_DIRS}"
+                    "${RMM_INCLUDE}"
+                    "${CUDF_INCLUDE}")
+
+if(CONDA_INCLUDE_DIRS)
+    include_directories("${CONDA_INCLUDE_DIRS}")
+endif(CONDA_INCLUDE_DIRS)
+
+###################################################################################################
+# - library paths ---------------------------------------------------------------------------------
+
+link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES is an undocumented/unsupported variable containing the link directories for nvcc
+                 "${CMAKE_BINARY_DIR}/lib"
+                 "${FLATBUFFERS_LIBRARY_DIR}"
+                 "${GDAL_LIBRARIES}"
+                 "${GTEST_LIBRARY_DIR}"
+                 "${CUDF_LIBRARY}")
+
+if(CONDA_LINK_DIRS)
+    link_directories("${CONDA_LINK_DIRS}")
+endif(CONDA_LINK_DIRS)
