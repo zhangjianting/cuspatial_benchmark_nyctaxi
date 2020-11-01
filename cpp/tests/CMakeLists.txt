@@ -21,19 +21,6 @@ if(NOT CMAKE_CUDA_COMPILER)
   message(SEND_ERROR "CMake cannot locate a CUDA compiler")
 endif()
 
-###################################################################################################
-# - common test utils -----------------------------------------------------------------------------
-
-find_library(CUDFTESTUTIL_LIBRARY "libcudftestutil.a"
-             HINTS "$ENV{CUDF_ROOT}/lib")
-
-message(STATUS "CUDFTESTUTIL: CUDFTESTUTIL_LIBRARY set to ${CUDFTESTUTIL_LIBRARY}")
-
-add_library(cudftestutil STATIC IMPORTED ${CUDFTESTUTIL_LIBRARY})
-
-if (CUDFTESTUTIL_LIBRARY)
-    set_target_properties(cudftestutil PROPERTIES IMPORTED_LOCATION ${CUDFTESTUTIL_LIBRARY})
-endif (CUDFTESTUTIL_LIBRARY)
 
 ###################################################################################################
 # - compiler function -----------------------------------------------------------------------------

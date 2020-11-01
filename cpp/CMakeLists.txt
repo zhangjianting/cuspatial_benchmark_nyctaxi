@@ -207,22 +207,6 @@ if(NOT GDAL_FOUND)
 endif(NOT GDAL_FOUND)
 
 ###################################################################################################
-# - add gtest -------------------------------------------------------------------------------------
-
-if(BUILD_TESTS)
-    include(CTest)
-    include(ConfigureGoogleTest)
-
-    if(GTEST_FOUND)
-        message(STATUS "Google C++ Testing Framework (Google Test) found in ${GTEST_ROOT}")
-        include_directories(${GTEST_INCLUDE_DIR})
-        add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
-    else()
-        message(AUTHOR_WARNING "Google C++ Testing Framework (Google Test) not found: automated tests are disabled.")
-    endif(GTEST_FOUND)
-endif(BUILD_TESTS)
-
-###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
 include_directories("${THRUST_INCLUDE_DIR}"
@@ -250,7 +234,6 @@ link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT
                  "${CMAKE_BINARY_DIR}/lib"
                  "${FLATBUFFERS_LIBRARY_DIR}"
                  "${GDAL_LIBRARIES}"
-                 "${GTEST_LIBRARY_DIR}"
                  "${CUDF_LIBRARY}")
 
 if(CONDA_LINK_DIRS)
