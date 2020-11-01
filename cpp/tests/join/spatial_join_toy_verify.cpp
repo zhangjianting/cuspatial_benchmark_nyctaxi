@@ -3,7 +3,8 @@
 #include <cassert>
 #include <algorithm>
 
-#include <thrust/copy>
+#include <thrust/host_vector.h>
+#include <thrust/copy.h>
 
 #include <cuspatial/error.hpp>
 
