@@ -23,16 +23,16 @@
 #include "spatial_join_test_utility.hpp"
 
 
-std::unique_ptr<column> make_numeric_column(data_type type,
+std::unique_ptr<cudf::column> make_numeric_column(data_type type,
                                             size_type size,
                                             mask_state state,
                                             cudaStream_t stream,
                                             rmm::mr::device_memory_resource* mr)
 {
-  CUDF_FUNC_RANGE();
-  CUDF_EXPECTS(is_numeric(type), "Invalid, non-numeric type.");
+  //CUDF_FUNC_RANGE();
+  //CUDF_EXPECTS(is_numeric(type), "Invalid, non-numeric type.");
 
-  return std::make_unique<column>(type,
+  return std::make_unique<cudf::column>(type,
                                   size,
                                   rmm::device_buffer{size * cudf::size_of(type), stream, mr},
                                   create_null_mask(size, state, stream, mr),
