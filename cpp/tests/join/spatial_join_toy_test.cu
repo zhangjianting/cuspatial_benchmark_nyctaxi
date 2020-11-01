@@ -161,13 +161,13 @@ struct SpatialJoinNYCTaxiTest
         std::cout<<"read_point: x_min="<<x1<<"  y_min="<<y1<<" x_max="<<x2<<" y_max="<<y2<<std::endl;
 
         //create x/y columns, expose their raw pointers to be used in run_test() and populate x/y arrays
-        this->col_pnt_x = cudf::make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
+        this->col_pnt_x = std::make_unique<cudf::column>( cudf::data_type{cudf::type_id::FLOAT64}, 
             this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
         double *d_pnt_x=cudf::mutable_column_device_view::create(col_pnt_x->mutable_view(), stream)->data<double>();
         assert(d_pnt_x!=nullptr);
         HANDLE_CUDA_ERROR( cudaMemcpy( d_pnt_x, h_pnt_x, this->num_pnts * sizeof(double), cudaMemcpyHostToDevice ) );
 
-        this->col_pnt_y = cudf::make_numeric_column( cudf::data_type{cudf::type_id::FLOAT64}, 
+        this->col_pnt_y = std::make_unique<cudf::column>( cudf::data_type{cudf::type_id::FLOAT64}, 
             this->num_pnts, cudf::mask_state::UNALLOCATED, stream, mr );      
         double *d_pnt_y=cudf::mutable_column_device_view::create(col_pnt_y->mutable_view(), stream)->data<double>();
         assert(d_pnt_y!=nullptr);    
