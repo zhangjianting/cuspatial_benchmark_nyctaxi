@@ -1,3 +1,5 @@
+#include <random>
+
 #include <cuspatial/error.hpp>
 #include <cuspatial/shapefile_reader.hpp>
 #include <cuspatial/spatial_join.hpp>
