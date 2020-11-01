@@ -343,7 +343,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
            printf("%d,%10.5f, %10.5f, %d\n",i,this->h_pnt_x[pid],this->h_pnt_y[pid],this->h_pp_poly_idx[i]);
 	}
   
-  printf("total bytes=%d\n",tb);  
+        printf("total bytes=%d\n",tb);  
     }    
 };
 
@@ -356,7 +356,7 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     std::cout<<"loading point data..........."<<std::endl;
     uint32_t const max_depth{3};
     uint32_t const min_size{400};
-
+    T const scale{1.0};
     this->setup_points(min_size);        
 
     std::cout<<"loading polygon data..........."<<std::endl;
@@ -364,6 +364,8 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     std::cout<<"Using shapefile "<<shape_filename<<std::endl;
     SBBox<double> aoi=this->setup_polygons(shape_filename.c_str());
 
+    //verify all points (x,y) in the shapefile are between [0.0,8.0) and [0.0,8.0) 
+    
     double poly_x1=thrust::get<0>(aoi.first);
     double poly_y1=thrust::get<1>(aoi.first);
     double poly_x2=thrust::get<0>(aoi.second);
@@ -371,18 +373,8 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     
     printf("x1=%10.5f y1=%10.5f x2=%10.5f y2=%10.5f\n",poly_x1,poly_y1,poly_x2,poly_y2);
     
-    /*double width=poly_x2-poly_x1;
-    double height=poly_y2-poly_y1;
-    double length=(width>height)?width:height;
-    double scale=length/((1<<max_depth)+2);
-    double bbox_x1=poly_x1-scale;
-    double bbox_y1=poly_y1-scale;
-    double bbox_x2=poly_x2+scale; 
-    double bbox_y2=poly_y2+scale;
-    printf("Area of Interests: length=%15.10f scale=%15.10f\n",length,scale);*/
-
     std::cout<<"running test on toy data..........."<<std::endl;
-    this->run_test(0.0,0.0,8.0,8.0,1.0,max_depth,min_size);
+    this->run_test(0.0,0.0,8.0,8.0,scale,max_depth,min_size);
     
     this->write_points_bin("toy_points.bin");
 
