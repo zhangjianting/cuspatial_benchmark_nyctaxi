@@ -213,8 +213,8 @@ struct SpatialJoinNYCTaxiTest
         thrust::host_vector<uint32_t> pq_poly_id(num_pq_pairs);
         thrust::host_vector<uint32_t> pq_quad_id(num_pq_pairs);
         
-        HANDLE_CUDA_ERROR( cudaMemcpy(pq_poly_id.data(), pq_pair_tbl->get_column(0).data(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
-        HANDLE_CUDA_ERROR( cudaMemcpy(pq_quad_id.data(), pq_pair_tbl->get_column(1).data(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
+        HANDLE_CUDA_ERROR( cudaMemcpy(pq_poly_id.data(), pq_pair_tbl->get_column(0).view().data<uint32_t>(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
+        HANDLE_CUDA_ERROR( cudaMemcpy(pq_quad_id.data(), pq_pair_tbl->get_column(1).view().data<uint32_t>(),num_pq_pairs* sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
                
        printf("num_pq_pairs=%d\n",num_pq_pairs);
         for(uint32_t i=0;i<num_pq_pairs;i++)
