@@ -386,7 +386,7 @@ int main()
     std::cout<<"running test on NYC taxi trip data..........."<<std::endl;
     test.run_test(bbox_x1,bbox_y1,bbox_x2,bbox_y2,scale,num_level,min_size);
     
-    write_nyc_taxi(bin_files[sel_id]);
+    test.write_nyc_taxi(bin_files[sel_id]);
     
     return(0); 
 }
