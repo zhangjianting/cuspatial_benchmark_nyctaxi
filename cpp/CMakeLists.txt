@@ -206,6 +206,11 @@ if(NOT GDAL_FOUND)
     message(FATAL_ERROR "GDAL not found, please check your settings.")
 endif(NOT GDAL_FOUND)
 
+if(BUILD_TESTS)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
+endif(BUILD_TESTS)
+
+
 ###################################################################################################
 # - include paths ---------------------------------------------------------------------------------
 
