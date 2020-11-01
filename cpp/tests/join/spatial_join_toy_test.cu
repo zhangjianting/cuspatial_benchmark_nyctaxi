@@ -129,7 +129,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
     SBBox<double> setup_points(uint32_t const min_size)
     {
  
-     std::vector<std::vector<double>> quads{{0, 2, 0, 2},
+        std::vector<std::vector<double>> quads{{0, 2, 0, 2},
                                        {3, 4, 0, 1},
                                        {2, 3, 1, 2},
                                        {4, 6, 0, 2},
@@ -139,14 +139,15 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
                                        {7, 8, 3, 4},
                                        {0, 4, 4, 8}};
    
-     auto host_points = generate_points<double>(quads, min_size);
-     this->num_pnts=std::get<0>(host_points).size();
-     this->h_pnt_x        =new double[this->num_pnts];
-     this->h_pnt_y        =new double[this->num_pnts];
-     auto h_x_vec=std::get<0>(host_points);
-     auto h_y_vec=std::get<1>(host_points);
-     std::copy(h_x_vec.begin(),h_x_vec.end(),this->h_pnt_x );
-     std::copy(h_y_vec.begin(),h_y_vec.end(),this->h_pnt_y );
+        auto host_points = generate_points<double>(quads, min_size);
+        this->num_pnts=std::get<0>(host_points).size();
+        this->h_pnt_x        =new double[this->num_pnts];
+        this->h_pnt_y        =new double[this->num_pnts];
+    
+        auto h_x_vec=std::get<0>(host_points);
+        auto h_y_vec=std::get<1>(host_points);
+        std::copy(h_x_vec.begin(),h_x_vec.end(),this->h_pnt_x );
+        std::copy(h_y_vec.begin(),h_y_vec.end(),this->h_pnt_y );
 
         //compute the bbox of all points; outlier points may have irrational values
         //any points that do not fall within the Area of Interests (AOIs) will be assgin a special Morton code
@@ -205,15 +206,14 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         std::unique_ptr<cudf::table>  pq_pair_tbl = 
         	cuspatial::join_quadtree_and_bounding_boxes(quad_view, bbox_view, x1, x2, y1, y2, scale, num_level,this->mr);
 
- thrust::host_vector<uint32_t> const &pq_poly_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(0)).first;
- thrust::host_vector<uint32_t> const &pq_quad_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(1)).first;
- uint32_t num_pq_pairs=pq_pair_tbl->num_rows();
- printf("num_pq_pairs=%d\n",num_pq_pairs);
- for(uint32_t i=0;i<num_pq_pairs;i++)
-  {
-           printf("%d, %d, %d\n",i,pq_poly_id[i],pq_quad_id[i]);
-  }
-
+        thrust::host_vector<uint32_t> const &pq_poly_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(0)).first;
+        thrust::host_vector<uint32_t> const &pq_quad_id= cudf::test::to_host<uint32_t>(pq_pair_tbl->get_column(1)).first;
+        uint32_t num_pq_pairs=pq_pair_tbl->num_rows();
+        printf("num_pq_pairs=%d\n",num_pq_pairs);
+        for(uint32_t i=0;i<num_pq_pairs;i++)
+        {
+		   printf("%d, %d, %d\n",i,pq_poly_id[i],pq_quad_id[i]);
+        }
             
         gettimeofday(&t3, nullptr);
         float filtering_time=calc_time("spatial filtering time=",t2,t3);
@@ -230,18 +230,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
                                                                      col_poly_x->view(),
                                                                      col_poly_y->view(),
                                                                      this->mr);
-                                                                     
-       /*std::unique_ptr<cudf::table> pip_pair_tbl = cuspatial::quadtree_point_in_polygon(*pq_pair_tbl,
-                                                                     *quadtree_tbl,
-                                                                     *point_indices,
-                                                                     *col_pnt_x,
-                                                                     *col_pnt_y,
-                                                                     *col_poly_fpos,
-                                                                     *col_poly_rpos,
-                                                                     *col_poly_x,
-                                                                     *col_poly_y,
-                                                                     this->mr);*/                                                                  
-                                                                     
+
         gettimeofday(&t4, nullptr);
         float refinement_time=calc_time("spatial refinement time=",t3,t4);
         std::cout<<"# of polygon/point pairs="<<pip_pair_tbl->view().num_rows()<<std::endl;
@@ -262,12 +251,6 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         std::cout<<"total_time="<<total_time<<std::endl;
         std::cout<<"gpu end-to-tend time"<<gpu_time<<std::endl;
         
-        //copy back sorted points to CPU for verification
-        //const double * d_pnx_x=this->col_pnt_x->view().data<double>();
-        //const double * d_pnx_y=this->col_pnt_y->view().data<double>();
-        //HANDLE_CUDA_ERROR( cudaMemcpy(this->h_pnt_x, d_pnx_x,this->num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
-        //HANDLE_CUDA_ERROR( cudaMemcpy(this->h_pnt_y, d_pnx_y,this->num_pnts * sizeof(double), cudaMemcpyDeviceToHost ) );
-
         const uint32_t * d_point_indices=point_indices->view().data<uint32_t>();
         this->h_point_indices=new uint32_t[this->num_pnts];
         HANDLE_CUDA_ERROR( cudaMemcpy(h_point_indices, d_point_indices,this->num_pnts * sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
