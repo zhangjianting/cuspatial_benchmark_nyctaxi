@@ -16,10 +16,6 @@
 #include <cudf/table/table_view.hpp>
 #include <cudf/reduction.hpp>
 
-#include <cudf_test/column_utilities.hpp>
-#include <cudf_test/column_wrapper.hpp>
-#include <cudf_test/table_utilities.hpp>
-
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
 
