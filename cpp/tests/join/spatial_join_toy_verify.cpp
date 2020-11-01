@@ -3,7 +3,7 @@
 #include <cassert>
 #include <algorithm>
 
-#include <thrust/host_vector.h
+#include <thrust/host_vector.h>
 #include <thrust/copy.h>
 
 #include <cuspatial/error.hpp>
@@ -96,8 +96,8 @@ struct SpatialJoinNYCTaxiVerify
         uint32_t *h_poly_rlen=new uint32_t[num_ring];
         assert(h_poly_flen!=nullptr && h_poly_rlen!=nullptr);
 
-        test.h_poly_x=new double [num_vertex];
-        test.h_poly_y=new double [num_vertex];
+        h_poly_x=new double [num_vertex];
+        h_poly_y=new double [num_vertex];
         assert(h_poly_x!=nullptr && h_poly_y!=nullptr);
 
         std::copy_n(f_len_v.begin(),num_poly,h_poly_flen);
@@ -280,13 +280,13 @@ int main(){
     //uint32_t num_quad_samples=10000;
     //test.compare_matched_pairs(num_quad_samples,num_print_interval,using_geos);
 
-    std::cout<<"h_pnt_idx_vec.size()="<<h_pnt_idx_vec.size()<<std::endl;
-    thrust::copy(h_pnt_idx_vec.begin(),h_pnt_idx_vec.end(),std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
+    std::cout<<"h_pnt_idx_vec.size()="<<test.h_pnt_idx_vec.size()<<std::endl;
+    thrust::copy(test.h_pnt_idx_vec.begin(),test.h_pnt_idx_vec.end(),std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
 
     //for unknown reason, the following two lines can not be compiled in spatial_join_test_utility.cu
     //h_pnt_search_idx and h_poly_search_idx do not need to be freed as the destructor of std::vector does it
-    uint32_t * h_pnt_search_idx=&(h_pnt_idx_vec[0]);
-    uint32_t * h_poly_search_idx=&(h_poly_idx_vec[0]);
+    uint32_t * h_pnt_search_idx=&(test.h_pnt_idx_vec[0]);
+    uint32_t * h_poly_search_idx=&(test.h_poly_idx_vec[0]);
 
 
     bool verified=compute_mismatch(test.num_pp_pairs,test.h_org_poly_idx_vec,
