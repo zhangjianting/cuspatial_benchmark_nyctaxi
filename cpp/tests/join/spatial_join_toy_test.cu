@@ -17,12 +17,6 @@
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
 
-#include <cudf_test/base_fixture.hpp>
-#include <cudf_test/column_utilities.hpp>
-#include <cudf_test/column_wrapper.hpp>
-#include <cudf_test/table_utilities.hpp>
-#include <cudf_test/type_lists.hpp>
-
 #include "spatial_join_test_utility.cuh"
 #include "spatial_join_test_utility.hpp"
 
@@ -45,7 +39,7 @@ inline auto generate_points(std::vector<std::vector<T>> const &quads, uint32_t p
 }
 
 
-struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
+struct SpatialJoinNYCTaxiTest
 {        
     uint32_t num_pnts=0;
     uint32_t num_quadrants=0;
@@ -340,7 +334,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
 };
 
 
-TEST_F(SpatialJoinNYCTaxiTest, test)
+void main()
 {
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
