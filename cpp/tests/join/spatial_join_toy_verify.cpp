@@ -52,8 +52,6 @@ struct SpatialJoinNYCTaxiVerify
 
     void setup_polygons(const char *file_name)
     {
-        SpatialJoinNYCTaxiVerify test;
-
         std::vector<int> g_len_v,f_len_v,r_len_v;
         std::vector<double> x_v, y_v;
         GDALAllRegister();
@@ -66,9 +64,9 @@ struct SpatialJoinNYCTaxiVerify
         //a shapefile abstracted as a GDALDatasetGetLayer typically has only one layer
         OGRLayerH hLayer = GDALDatasetGetLayer( hDS,0 );
 
-        test.h_ogr_polygon_vec.clear();
-        test.h_geos_polygon_vec.clear();
-        test.h_org_poly_idx_vec.clear();
+        h_ogr_polygon_vec.clear();
+        h_geos_polygon_vec.clear();
+        h_org_poly_idx_vec.clear();
 
         //type: 0 for all, 1 for simple polygons and 2 for multi-polygons
         uint8_t type=0;
@@ -251,6 +249,8 @@ struct SpatialJoinNYCTaxiVerify
 */
 
 int main(){
+
+    SpatialJoinNYCTaxiVerify test;
 
     const char* env_p = std::getenv("CUSPATIAL_DATA");
     CUDF_EXPECTS(env_p!=nullptr,"CUSPATIAL_DATA environmental variable must be set");
