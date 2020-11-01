@@ -113,12 +113,12 @@ struct SpatialJoinNYCTaxiVerify
 
     void compare_random_points(uint32_t num_samples,uint32_t num_print_interval,bool using_geos)
     {
-        std::cout<<"compare_random_points: num_quadrants="<<test.num_quadrants
-            <<" num_pp_pair="<<test.num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
+        std::cout<<"compare_random_points: num_quadrants="<<num_quadrants
+            <<" num_pp_pair="<<num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
 
         std::vector<uint32_t> rand_indices;
-        //gen_rand_idx(rand_indices,test.num_pnts,num_samples);
-        for(int i=0;i<test.num_pnts;i++)
+        //gen_rand_idx(rand_indices,num_pnts,num_samples);
+        for(int i=0;i<num_pnts;i++)
             rand_indices.push_back(i);
 
         timeval t0,t1;
@@ -128,13 +128,13 @@ struct SpatialJoinNYCTaxiVerify
 
         if(using_geos)
         {
-            rand_points_geos_pip_test(num_print_interval,rand_indices, test.h_geos_polygon_vec,test.h_pnt_idx_vec,
-                test.h_pnt_len_vec,test.h_poly_idx_vec,test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
+            rand_points_geos_pip_test(num_print_interval,rand_indices, h_geos_polygon_vec,h_pnt_idx_vec,
+                h_pnt_len_vec,h_poly_idx_vec,h_pnt_x,h_pnt_y,h_point_indices);
         }
         else
         {
-            rand_points_ogr_pip_test(num_print_interval,rand_indices, test.h_ogr_polygon_vec,test.h_pnt_idx_vec,
-                test.h_pnt_len_vec,test.h_poly_idx_vec,test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
+            rand_points_ogr_pip_test(num_print_interval,rand_indices, h_ogr_polygon_vec,h_pnt_idx_vec,
+                h_pnt_len_vec,h_poly_idx_vec,h_pnt_x,h_pnt_y,h_point_indices);
          }
         gettimeofday(&t1, nullptr);
         float cpu_time=calc_time("cpu random sampling computing time = ",t0,t1);
@@ -142,11 +142,11 @@ struct SpatialJoinNYCTaxiVerify
 
     void compare_matched_pairs(uint32_t num_samples,uint32_t num_print_interval,bool using_geos)
     {
-        std::cout<<"compare_matched_pairs: num_quadrants="<<test.num_quadrants<<" num_pq_pairs"<<test.num_pq_pairs
-            <<" num_pp_pair="<<test.num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
+        std::cout<<"compare_matched_pairs: num_quadrants="<<num_quadrants<<" num_pq_pairs"<<num_pq_pairs
+            <<" num_pp_pair="<<num_pp_pairs<<" num_samples="<<num_samples<<std::endl;
 
         std::vector<uint32_t> rand_indices;
-        gen_rand_idx(rand_indices,test.num_pq_pairs,num_samples);
+        gen_rand_idx(rand_indices,num_pq_pairs,num_samples);
 
         timeval t0,t1;
         gettimeofday(&t0, nullptr);
@@ -154,16 +154,16 @@ struct SpatialJoinNYCTaxiVerify
         if(using_geos)
         {
             matched_pairs_geos_pip_test(num_print_interval,rand_indices,
-                test.h_pq_quad_idx,test.h_pq_poly_idx,test.h_qt_length,test.h_qt_fpos,
-                test.h_geos_polygon_vec,test.h_pnt_idx_vec,test.h_pnt_len_vec,test.h_poly_idx_vec,
-                test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
+                h_pq_quad_idx,h_pq_poly_idx,h_qt_length,h_qt_fpos,
+                h_geos_polygon_vec,h_pnt_idx_vec,h_pnt_len_vec,h_poly_idx_vec,
+                h_pnt_x,h_pnt_y,h_point_indices);
         }
         else
         {
             matched_pairs_ogr_pip_test(num_print_interval,rand_indices,
-                test.h_pq_quad_idx,test.h_pq_poly_idx,test.h_qt_length,test.h_qt_fpos,
-                test.h_ogr_polygon_vec,test.h_pnt_idx_vec,test.h_pnt_len_vec,test.h_poly_idx_vec,
-                test.h_pnt_x,test.h_pnt_y,test.h_point_indices);
+                h_pq_quad_idx,h_pq_poly_idx,h_qt_length,h_qt_fpos,
+                h_ogr_polygon_vec,h_pnt_idx_vec,h_pnt_len_vec,h_poly_idx_vec,
+                h_pnt_x,h_pnt_y,h_point_indices);
 
         }
         gettimeofday(&t1, nullptr);
@@ -175,54 +175,54 @@ struct SpatialJoinNYCTaxiVerify
         CUDF_EXPECTS(file_name!=NULL,"file_name can not be NULL");
         FILE *fp=fopen(file_name,"rb");
         CUDF_EXPECTS(fp!=NULL, "can not open file for input");
-        CUDF_EXPECTS(fread(&(test.num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
-        CUDF_EXPECTS(fread(&(test.num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
-        CUDF_EXPECTS(fread(&(test.num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
-        CUDF_EXPECTS(fread(&(test.num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
-        std::cout<<"num_pnts="<<test.num_pnts<<" num_quadrants="<<test.num_quadrants<<" num_pq_pairs="<<test.num_pq_pairs<<" num_pp_pairs="<<test.num_pp_pairs<<std::endl;
+        CUDF_EXPECTS(fread(&(num_pnts),sizeof(uint32_t),1,fp)==1,"reading num_pnt failed");
+        CUDF_EXPECTS(fread(&(num_quadrants),sizeof(uint32_t),1,fp)==1,"reading num_quadrants failed");
+        CUDF_EXPECTS(fread(&(num_pq_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pq_pairs failed");
+        CUDF_EXPECTS(fread(&(num_pp_pairs),sizeof(uint32_t),1,fp)==1,"reading num_pp_pairs failed");
+        std::cout<<"num_pnts="<<num_pnts<<" num_quadrants="<<num_quadrants<<" num_pq_pairs="<<num_pq_pairs<<" num_pp_pairs="<<num_pp_pairs<<std::endl;
 
         std::cout<<"reading points..."<<std::endl;
-        test.h_pnt_x=new double[test.num_pnts];
-        test.h_pnt_y=new double[test.num_pnts];
-        test.h_point_indices= new uint32_t[test.num_pnts];
-        CUDF_EXPECTS( test.h_pnt_x!=NULL && test.h_pnt_y!=NULL && test.h_point_indices!=NULL	 ,"allocating memory for points on host failed");
+        h_pnt_x=new double[num_pnts];
+        h_pnt_y=new double[num_pnts];
+        h_point_indices= new uint32_t[num_pnts];
+        CUDF_EXPECTS( h_pnt_x!=NULL && h_pnt_y!=NULL && h_point_indices!=NULL	 ,"allocating memory for points on host failed");
 
-        CUDF_EXPECTS(fread(test.h_pnt_x,sizeof(double),test.num_pnts,fp)==test.num_pnts,"reading h_pnt_x failed");
-        CUDF_EXPECTS(fread(test.h_pnt_y,sizeof(double),test.num_pnts,fp)==test.num_pnts,"reading h_pnt_y failed");
-        CUDF_EXPECTS(fread(test.h_point_indices,sizeof(uint32_t),test.num_pnts,fp)==test.num_pnts,"reading h_point_indices failed");
+        CUDF_EXPECTS(fread(h_pnt_x,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_x failed");
+        CUDF_EXPECTS(fread(h_pnt_y,sizeof(double),num_pnts,fp)==num_pnts,"reading h_pnt_y failed");
+        CUDF_EXPECTS(fread(h_point_indices,sizeof(uint32_t),num_pnts,fp)==num_pnts,"reading h_point_indices failed");
 
-        thrust::copy(test.h_pnt_x,test.h_pnt_x+test.num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
-        thrust::copy(test.h_pnt_y,test.h_pnt_y+test.num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
-        thrust::copy(test.h_point_indices,test.h_point_indices+test.num_pnts,std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(h_pnt_x,h_pnt_x+num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(h_pnt_y,h_pnt_y+num_pnts,std::ostream_iterator<double>(std::cout, " "));std::cout<<std::endl;
+        thrust::copy(h_point_indices,h_point_indices+num_pnts,std::ostream_iterator<uint32_t>(std::cout, " "));std::cout<<std::endl;
 
         std::cout<<"reading quadrants..."<<std::endl;
-        test.h_qt_length=new uint32_t[test.num_quadrants];
-        test.h_qt_fpos=new uint32_t[test.num_quadrants];
-        CUDF_EXPECTS( test.h_qt_length!=NULL && test.h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
+        h_qt_length=new uint32_t[num_quadrants];
+        h_qt_fpos=new uint32_t[num_quadrants];
+        CUDF_EXPECTS( h_qt_length!=NULL && h_qt_fpos!=NULL,"allocating memory for quadrants on host failed");
 
-        CUDF_EXPECTS(fread(test.h_qt_length,sizeof(uint32_t),test.num_quadrants,fp)==test.num_quadrants,"reading h_qt_length failed");
-        CUDF_EXPECTS(fread(test.h_qt_fpos,sizeof(uint32_t),test.num_quadrants,fp)==test.num_quadrants,"reading h_qt_fpos failed");
+        CUDF_EXPECTS(fread(h_qt_length,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_length failed");
+        CUDF_EXPECTS(fread(h_qt_fpos,sizeof(uint32_t),num_quadrants,fp)==num_quadrants,"reading h_qt_fpos failed");
 
         std::cout<<"reading quadrant/polygon pairs..."<<std::endl;
-        test.h_pq_quad_idx=new uint32_t[test.num_pq_pairs];
-        test.h_pq_poly_idx=new uint32_t[test.num_pq_pairs];
-        CUDF_EXPECTS( test.h_pq_poly_idx!=NULL && test.h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
+        h_pq_quad_idx=new uint32_t[num_pq_pairs];
+        h_pq_poly_idx=new uint32_t[num_pq_pairs];
+        CUDF_EXPECTS( h_pq_poly_idx!=NULL && h_pq_quad_idx!=NULL,"allocating memory for quadrant-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(test.h_pq_quad_idx,sizeof(uint32_t),test.num_pq_pairs,fp)==test.num_pq_pairs,"reading h_pq_quad_idx failed");
-        CUDF_EXPECTS(fread(test.h_pq_poly_idx,sizeof(uint32_t),test.num_pq_pairs,fp)==test.num_pq_pairs,"reading h_pq_poly_idx failed");
+        CUDF_EXPECTS(fread(h_pq_quad_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_quad_idx failed");
+        CUDF_EXPECTS(fread(h_pq_poly_idx,sizeof(uint32_t),num_pq_pairs,fp)==num_pq_pairs,"reading h_pq_poly_idx failed");
 
         std::cout<<"reading point/polygon pairs..."<<std::endl;
-        test.h_pp_poly_idx=new uint32_t[test.num_pp_pairs];
-        test.h_pp_pnt_idx=new uint32_t[test.num_pp_pairs];
-        CUDF_EXPECTS(test.h_pp_poly_idx!=NULL && test.h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
+        h_pp_poly_idx=new uint32_t[num_pp_pairs];
+        h_pp_pnt_idx=new uint32_t[num_pp_pairs];
+        CUDF_EXPECTS(h_pp_poly_idx!=NULL && h_pp_pnt_idx!=NULL,"allocating memory for point-polygon pairs on host failed");
 
-        CUDF_EXPECTS(fread(test.h_pp_poly_idx,sizeof(uint32_t),test.num_pp_pairs,fp)==test.num_pp_pairs,"reading h_pp_poly_idx failed");
-        CUDF_EXPECTS(fread(test.h_pp_pnt_idx,sizeof(uint32_t),test.num_pp_pairs,fp)==test.num_pp_pairs,"reading h_pp_pnt_idx failed");
+        CUDF_EXPECTS(fread(h_pp_poly_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_poly_idx failed");
+        CUDF_EXPECTS(fread(h_pp_pnt_idx,sizeof(uint32_t),num_pp_pairs,fp)==num_pp_pairs,"reading h_pp_pnt_idx failed");
 
-        for(int i=0;i<test.num_pp_pairs;i++)
+        for(int i=0;i<num_pp_pairs;i++)
         {
-           uint32_t pid=test.h_point_indices[test.h_pp_pnt_idx[i]];
-           printf("%d,%10.5f, %10.5f, %d\n",i,test.h_pnt_x[pid],test.h_pnt_y[pid],test.h_pp_poly_idx[i]);
+           uint32_t pid=h_point_indices[h_pp_pnt_idx[i]];
+           printf("%d,%10.5f, %10.5f, %d\n",i,h_pnt_x[pid],h_pnt_y[pid],h_pp_poly_idx[i]);
 	   }
 
     }
