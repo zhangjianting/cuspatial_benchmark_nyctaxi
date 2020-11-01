@@ -16,6 +16,10 @@
 #include <cudf/table/table_view.hpp>
 #include <cudf/reduction.hpp>
 
+#include <cudf_test/column_utilities.hpp>
+#include <cudf_test/column_wrapper.hpp>
+#include <cudf_test/table_utilities.hpp>
+
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
 
@@ -32,15 +36,15 @@ inline auto generate_points(std::vector<std::vector<T>> const &quads, uint32_t p
   std::mt19937 g(seed);
   
   for (uint32_t i = 0, pos = 0; i < quads.size(); i++, pos += points_per_quad) {
-    std::uniform_real_distribution<> dist_x (dist_x{quads[i][0], quads[i][1]};
-    std::uniform_real_distribution<> dist_y (dist_x{quads[i][0], quads[i][1]};
+    std::uniform_real_distribution<> dist_x (quads[i][0], quads[i][1]);
+    std::uniform_real_distribution<> dist_y (quads[i][0], quads[i][1]);
 
     std::generate(point_x.begin() + pos, point_x.begin() + pos + points_per_quad, [&]() mutable {
-      return dist_x.generate();
+      return dist_x(g);
     });
 
     std::generate(point_y.begin() + pos, point_y.begin() + pos + points_per_quad, [&]() mutable {
-      return dist_y.generate();
+      return dist_y(g);
     });
   }
   return std::make_pair(std::move(point_x), std::move(point_y));
