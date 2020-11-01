@@ -79,7 +79,6 @@ link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT
                  "${CUDF_LIBRARY}"
                  "${CUSPATIAL_LIBRARY}")
 
-
 set(PIP_JOIN_NYCTAXI_TEST_SRC
     "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_nyctaxi_test.cu"  
     "${CMAKE_CURRENT_SOURCE_DIR}/join/spatial_join_test_utility.cpp")
