@@ -228,22 +228,3 @@ if(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 	include_directories("${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}")
 endif(CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES)
 
-###################################################################################################
-# - library paths ---------------------------------------------------------------------------------
-
-link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES is an undocumented/unsupported variable containing the link directories for nvcc
-                 "${CMAKE_BINARY_DIR}/lib"
-                 "${FLATBUFFERS_LIBRARY_DIR}"
-                 "${GDAL_LIBRARIES}"
-                 "${CONDA_LINK_DIRS}"
-                 "${GTEST_LIBRARY_DIR}"
-                 "${RMM_LIBRARY}"
-                 "${CUDF_LIBRARY}")
-
-###################################################################################################
-# - library targets -------------------------------------------------------------------------------
-
-# - link libraries --------------------------------------------------------------------------------
-
-target_link_libraries(cuspatial cudf rmm cudart cuda nvrtc gdal)
-
