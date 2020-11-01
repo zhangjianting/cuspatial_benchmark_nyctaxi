@@ -242,3 +242,8 @@ link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT
 
 ###################################################################################################
 # - library targets -------------------------------------------------------------------------------
+
+# - link libraries --------------------------------------------------------------------------------
+
+target_link_libraries(cuspatial cudf rmm cudart cuda nvrtc gdal)
+

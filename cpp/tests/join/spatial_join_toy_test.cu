@@ -356,7 +356,7 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     std::cout<<"Using shapefile "<<shape_filename<<std::endl;
     SBBox<double> aoi=this->setup_polygons(shape_filename.c_str());
 
-    //verify all points (x,y) in the shapefile are between [0.0,8.0) and [0.0,8.0) 
+    //verify all polygon vertices (x,y) in the shapefile are between [0.0,8.0) and [0.0,8.0) 
     
     double poly_x1=thrust::get<0>(aoi.first);
     double poly_y1=thrust::get<1>(aoi.first);
