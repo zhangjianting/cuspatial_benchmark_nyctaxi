@@ -15,6 +15,7 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 #include <cudf/reduction.hpp>
+#include <cudf/types.hpp>
 
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
@@ -37,7 +38,7 @@ std::unique_ptr<cudf::column> make_numeric_column(cudf::data_type type,
                                   rmm::device_buffer{size * cudf::size_of(type), stream, mr},
                                   create_null_mask(size, state, stream, mr),
                                   state_null_count(state, size),
-                                  std::vector<std::unique_ptr<column>>{});
+                                  std::vector<std::unique_ptr<cudf::column>>{});
 }
 
 template <typename T>
