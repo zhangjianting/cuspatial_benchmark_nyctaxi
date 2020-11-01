@@ -16,6 +16,7 @@
 #include <cudf/table/table_view.hpp>
 #include <cudf/reduction.hpp>
 #include <cudf/types.hpp>
+#include <cudf/null_mask.hpp>
 
 #include <rmm/thrust_rmm_allocator.h>
 #include <rmm/device_uvector.hpp>
@@ -25,7 +26,7 @@
 
 
 std::unique_ptr<cudf::column> make_numeric_column(cudf::data_type type,
-                                            size_type size,
+                                            cudf::size_type size,
                                             cudf::mask_state state,
                                             cudaStream_t stream,
                                             rmm::mr::device_memory_resource* mr)
