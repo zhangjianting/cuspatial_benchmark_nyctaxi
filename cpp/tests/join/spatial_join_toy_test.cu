@@ -254,15 +254,7 @@ struct SpatialJoinNYCTaxiTest :public cudf::test::BaseFixture
         const uint32_t * d_point_indices=point_indices->view().data<uint32_t>();
         this->h_point_indices=new uint32_t[this->num_pnts];
         HANDLE_CUDA_ERROR( cudaMemcpy(h_point_indices, d_point_indices,this->num_pnts * sizeof(uint32_t), cudaMemcpyDeviceToHost ) );
-        
-        
-        /*auto points         = cudf::gather(cudf::table_view{{col_pnt_x->view(), col_pnt_y->view()}}, *point_indices, this->mr());
-        std::vector<double> h_vec_x=cudf::test::to_host<double>(points->get_column(0));
-        std::vector<double> h_vec_y=cudf::test::to_host<double>(points->get_column(1));
-        
-        std::copy(h_vec_x.begin(),h_vec_x.end(),h_pnt_x);
-        std::copy(h_vec_y.begin(),h_vec_y.end(),h_pnt_y);*/
-        
+                
         //setup variables for verifications
         const uint32_t *d_qt_length=quadtree_tbl->view().column(3).data<uint32_t>();
         const uint32_t *d_qt_fpos=quadtree_tbl->view().column(4).data<uint32_t>();
@@ -356,7 +348,7 @@ TEST_F(SpatialJoinNYCTaxiTest, test)
     std::cout<<"loading point data..........."<<std::endl;
     uint32_t const max_depth{3};
     uint32_t const min_size{400};
-    T const scale{1.0};
+    double const scale{1.0};
     this->setup_points(min_size);        
 
     std::cout<<"loading polygon data..........."<<std::endl;
