@@ -1,5 +1,8 @@
 #include <stdint.h>
 #include <iostream>
+#include <cassert>
+#include <algorithm>
+
 #include "spatial_join_test_utility.hpp"
 #include "spatial_join_geo_utility.hpp"
 
@@ -226,17 +229,17 @@ struct SpatialJoinNYCTaxiVerify
 
     void tear_down()
     {
-        delete[] test.h_poly_x; test.h_poly_x=nullptr;
-        delete[] test.h_poly_y; test.h_poly_y=nullptr;
+        delete[] h_poly_x; h_poly_x=nullptr;
+        delete[] h_poly_y; h_poly_y=nullptr;
 
-        delete[] test.h_pnt_x; test.h_pnt_x=nullptr;
+        delete[] h_pnt_x; h_pnt_x=nullptr;
         delete[] h_pnt_y; h_pnt_y=nullptr;
 
-        delete[] test.h_pq_quad_idx; test.h_pq_quad_idx=nullptr;
+        delete[] h_pq_quad_idx; h_pq_quad_idx=nullptr;
         delete[] h_pq_poly_idx; h_pq_poly_idx=nullptr;
 
-        delete[] test.h_qt_length; test.h_qt_length=nullptr;
-        delete[] test.h_qt_fpos; test.h_qt_fpos=nullptr;
+        delete[] h_qt_length; h_qt_length=nullptr;
+        delete[] h_qt_fpos; h_qt_fpos=nullptr;
     }
 
 };
