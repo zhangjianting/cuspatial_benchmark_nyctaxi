@@ -52,7 +52,7 @@ int main()
          682.26592405,  -344.72459227,  -326.14679997,  -260.59465615,
         -921.53477508,  -238.98700202,  -239.827907  ,   310.17914917});
 
-  cudf::test::fixed_width_column_wrapper<T> y(
+  cudf::test::fixed_width_column_wrapper<double> y(
     {349.22857455,     1.88544454,   465.92418706,   169.9824919 ,
           -7.8410558 ,    80.46408415,   -95.32674679,  -197.42475702,
         -133.86676845,  -564.00566574,   140.22085266,  -496.56180546,
@@ -99,7 +99,8 @@ for(uint32_t k=0;k<10;k++)
     const bool *d_sign=quadtree->view().column(2).template data<bool>();
     const uint32_t *d_len=quadtree->view().column(3).template data<uint32_t>();
     const uint32_t *d_fpos=quadtree->view().column(4).template data<uint32_t>();
-
+    
+    num_quad=quadtree->view().num_rows();
     uint32_t *h_key=new uint32_t[num_quad];
     uint8_t  *h_lev=new uint8_t[num_quad];
     bool     *h_sign=new bool[num_quad];
