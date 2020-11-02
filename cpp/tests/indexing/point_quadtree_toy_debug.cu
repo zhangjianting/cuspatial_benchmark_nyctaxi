@@ -100,7 +100,7 @@ for(uint32_t k=0;k<10;k++)
     const uint32_t *d_len=quadtree->view().column(3).template data<uint32_t>();
     const uint32_t *d_fpos=quadtree->view().column(4).template data<uint32_t>();
     
-    num_quad=quadtree->view().num_rows();
+    uint32_t num_quad=quadtree->view().num_rows();
     uint32_t *h_key=new uint32_t[num_quad];
     uint8_t  *h_lev=new uint8_t[num_quad];
     bool     *h_sign=new bool[num_quad];
