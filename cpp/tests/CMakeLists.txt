@@ -70,7 +70,7 @@ link_directories("${CMAKE_CUDA_IMPLICIT_LINK_DIRECTORIES}" # CMAKE_CUDA_IMPLICIT
                  "${CUSPATIAL_LIBRARY}")
 
 set(POINT_QUADTREE_TOY_DEBUG_SRC
-    "${CMAKE_CURRENT_SOURCE_DIR}/indexing/point_quadtree_toy_debug.cu"  
+    "${CMAKE_CURRENT_SOURCE_DIR}/indexing/point_quadtree_toy_debug.cu")  
 ConfigureTest(POINT_QUADTREE_TOY_DEBUG "${POINT_QUADTREE_TOY_DEBUG_SRC}")
 
 set(PIP_JOIN_TOY_TEST_SRC
