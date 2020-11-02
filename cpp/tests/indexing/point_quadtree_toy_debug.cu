@@ -114,7 +114,7 @@ for(uint32_t k=0;k<10;k++)
     EXPECT_EQ(cudaMemcpy(h_len,d_len,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
     EXPECT_EQ(cudaMemcpy(h_fpos,d_fpos,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
   
-    printf("\t round:%d num_quad=%d\n",i,num_quad);
+    printf("\t round:%d num_quad=%d\n",k,num_quad);
     for(uint32_t i=0;i<num_quad;i++)
        printf("%10d %10d %10d %10d %10d\n",h_key[i],h_lev[i],h_sign[i],h_len[i],h_fpos[i]);
  
