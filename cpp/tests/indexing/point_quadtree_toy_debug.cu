@@ -14,14 +14,14 @@ int main()
 {
   const int8_t max_depth = 3;
   uint32_t min_size      = 50;
-  double scale           = 400.0;
+  double scale         = 400.0;
   double x_min =  -1276.4949079170394, x_max = 1134.877311993804, y_min = -1111.7015761122134, y_max = 1191.572387431971;   
 
   cudf::test::fixed_width_column_wrapper<double> x(
     { -318.71851278,  -198.63590716,   -66.44028879,  -148.8954397 ,
         -154.50648452,  -838.00190316,   576.16578239,   539.80929602,
         -406.6821296 ,  -733.2121639 ,   260.53243823,  -287.89398491,
-          70.97658166,  -159.66420857,   345.76937554,   347.37457183,
+        70.97658166,  -159.66420857,   345.76937554,   347.37457183,
         -362.79868923,  -691.6819777 ,  -791.46919867,   305.18968955,
         -594.42962889,  -253.40817715,  -298.15701923,   -26.28364813,
         -968.13990292,    94.3892984 ,   261.94551192,    44.21104352,
@@ -32,7 +32,7 @@ int main()
          143.17184445,   304.42191724,  -522.62668307,   605.57264484,
          344.90908227,   650.92311478,  -314.04377982,  -240.51355923,
         1151.95834884,  -530.00791136,   -67.97485034,   568.4456813 ,
-          48.86248386,   291.47683988,  -199.72451463,   185.02794392,
+        48.86248386,   291.47683988,  -199.72451463,   185.02794392,
         -653.26342587,   829.06533981,   -59.08202256,  -340.089102  ,
          333.19154102,  -230.35989369,  -667.1292357 ,  -673.3587529 ,
          346.88657635,   -79.78671907,   -66.85077983,   538.87190299,
@@ -51,12 +51,12 @@ int main()
 
   cudf::test::fixed_width_column_wrapper<double> y(
     {349.22857455,     1.88544454,   465.92418706,   169.9824919 ,
-          -7.8410558 ,    80.46408415,   -95.32674679,  -197.42475702,
+        -7.8410558 ,    80.46408415,   -95.32674679,  -197.42475702,
         -133.86676845,  -564.00566574,   140.22085266,  -496.56180546,
          420.81563204,  -124.72929008,    24.74749083,   246.91838814,
          321.65723253,  -785.31170432,  -103.45183808,   440.08945604,
         -849.05290972,   193.6402377 , -1127.7821147 ,  -511.25342182,
-          19.31527592,  -828.35755116,  -492.75536884,  -735.91750373,
+        19.31527592,  -828.35755116,  -492.75536884,  -735.91750373,
          824.0674661 ,    82.11387774,   283.64513893,  -111.33755026,
         -176.71587438,  -808.23709433,  -145.91868137,  -380.74610591,
          428.96196215,   570.55093333,   733.28935779,   426.27596973,
@@ -81,50 +81,40 @@ int main()
         -137.83526728,  -354.86398292,   869.43633873,   497.19719566,
          659.56843815,  -441.20940927,   564.29703226,   248.00047317});
 
-for(uint32_t k=0;k<1;k++)
-{
-  auto quadtree_pair =
-    cuspatial::quadtree_on_points(x, y, x_min, x_max, y_min, y_max, scale, max_depth, min_size);
-  auto &quadtree = std::get<1>(quadtree_pair);
+    uint32_t repeat=10;
+    for(uint32_t k=0;k<repeat;k++)
+    {
+        auto quadtree_pair =
+        cuspatial::quadtree_on_points(x, y, x_min, x_max, y_min, y_max, scale, max_depth, min_size);
+        auto &quadtree = std::get<1>(quadtree_pair);
 
-  CUSPATIAL_EXPECTS(
-    quadtree->num_columns() == 5,
-    "a quadtree table must have 5 columns (keys, levels, is_node, lengths, offsets)");  
+        CUSPATIAL_EXPECTS(
+        quadtree->num_columns() == 5,
+        "a quadtree table must have 5 columns (keys, levels, is_node, lengths, offsets)");  
 
-    const uint32_t  *d_key=quadtree->view().column(0).template data<uint32_t>();
-    const uint8_t  *d_lev=quadtree->view().column(1).template data<uint8_t>();
-    const bool *d_sign=quadtree->view().column(2).template data<bool>();
-    const uint32_t *d_len=quadtree->view().column(3).template data<uint32_t>();
-    const uint32_t *d_fpos=quadtree->view().column(4).template data<uint32_t>();
-    
-    uint32_t num_quad=quadtree->view().num_rows();
-    uint32_t *h_key=new uint32_t[num_quad];
-    uint8_t  *h_lev=new uint8_t[num_quad];
-    bool     *h_sign=new bool[num_quad];
-    uint32_t *h_len=new uint32_t[num_quad];
-    uint32_t *h_fpos=new uint32_t[num_quad];
-    assert(h_key!=nullptr && h_lev!=nullptr && h_sign!=nullptr && h_len!=nullptr && h_fpos!=nullptr);
- 
-    EXPECT_EQ(cudaMemcpy(h_key,d_key,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
-    EXPECT_EQ(cudaMemcpy(h_lev,d_lev,num_quad*sizeof(uint8_t),cudaMemcpyDeviceToHost),cudaSuccess);
-    EXPECT_EQ(cudaMemcpy(h_sign,d_sign,num_quad*sizeof(bool),cudaMemcpyDeviceToHost),cudaSuccess);
-    EXPECT_EQ(cudaMemcpy(h_len,d_len,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
-    EXPECT_EQ(cudaMemcpy(h_fpos,d_fpos,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
-  
-    printf("\t round:%d num_quad=%d\n",k,num_quad);
-    for(uint32_t i=0;i<num_quad;i++)
-       printf("%10d %10d %10d %10d %10d\n",h_key[i],h_lev[i],h_sign[i],h_len[i],h_fpos[i]);
- 
-	/*
-	  expect_tables_equal(
-	    *quadtree,
-	    cudf::table_view{
-	      {fixed_width_column_wrapper<uint32_t>({0, 1, 2, 0, 1, 3, 4, 7, 5, 6, 13, 14, 28, 31}),
-	       fixed_width_column_wrapper<uint8_t>({0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2}),
-	       fixed_width_column_wrapper<bool>({1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0}),
-	       fixed_width_column_wrapper<uint32_t>({3, 2, 11, 7, 2, 2, 9, 2, 9, 7, 5, 8, 8, 7}),
-	       fixed_width_column_wrapper<uint32_t>({3, 6, 60, 0, 8, 10, 36, 12, 7, 16, 23, 28, 45, 53})}});
-	*/
+        const uint32_t  *d_key=quadtree->view().column(0).template data<uint32_t>();
+        const uint8_t  *d_lev=quadtree->view().column(1).template data<uint8_t>();
+        const bool *d_sign=quadtree->view().column(2).template data<bool>();
+        const uint32_t *d_len=quadtree->view().column(3).template data<uint32_t>();
+        const uint32_t *d_fpos=quadtree->view().column(4).template data<uint32_t>();
+
+        uint32_t num_quad=quadtree->view().num_rows();
+        uint32_t *h_key=new uint32_t[num_quad];
+        uint8_t  *h_lev=new uint8_t[num_quad];
+        bool     *h_sign=new bool[num_quad];
+        uint32_t *h_len=new uint32_t[num_quad];
+        uint32_t *h_fpos=new uint32_t[num_quad];
+        assert(h_key!=nullptr && h_lev!=nullptr && h_sign!=nullptr && h_len!=nullptr && h_fpos!=nullptr);
+
+        EXPECT_EQ(cudaMemcpy(h_key,d_key,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
+        EXPECT_EQ(cudaMemcpy(h_lev,d_lev,num_quad*sizeof(uint8_t),cudaMemcpyDeviceToHost),cudaSuccess);
+        EXPECT_EQ(cudaMemcpy(h_sign,d_sign,num_quad*sizeof(bool),cudaMemcpyDeviceToHost),cudaSuccess);
+        EXPECT_EQ(cudaMemcpy(h_len,d_len,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
+        EXPECT_EQ(cudaMemcpy(h_fpos,d_fpos,num_quad*sizeof(uint32_t),cudaMemcpyDeviceToHost),cudaSuccess);
+
+        printf("\t round:%d num_quad=%d\n",k,num_quad);
+        for(uint32_t i=0;i<num_quad;i++)
+           printf("%10d %10d %10d %10d %10d\n",h_key[i],h_lev[i],h_sign[i],h_len[i],h_fpos[i]);
     }
     return (0);
 }
