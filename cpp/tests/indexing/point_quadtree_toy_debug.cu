@@ -82,7 +82,7 @@ int main()
          659.56843815,  -441.20940927,   564.29703226,   248.00047317});
 
     uint32_t repeat=10;
-    std::pair<std::unique_ptr<cudf::column>, std::unique_ptr<cudf::table>> quadtree_on_points quadtree_pair;
+    std::pair<std::unique_ptr<cudf::column>, std::unique_ptr<cudf::table>> quadtree_pair;
     for(uint32_t k=0;k<repeat;k++)
     {
         quadtree_pair= cuspatial::quadtree_on_points(x, y, x_min, x_max, y_min, y_max, scale, max_depth, min_size);      
