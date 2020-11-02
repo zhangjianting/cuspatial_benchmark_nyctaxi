@@ -5,9 +5,8 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 
+int main()
 {
-  using namespace cudf::test;
-
   const int8_t max_depth = 3;
   uint32_t min_size      = 50;
   //double scale           = 301.0;
@@ -124,4 +123,5 @@ for(uint32_t k=0;k<10;k++)
 	       fixed_width_column_wrapper<uint32_t>({3, 6, 60, 0, 8, 10, 36, 12, 7, 16, 23, 28, 45, 53})}});
 	*/
     }
+    return (0);
 }
