@@ -5,6 +5,11 @@
 #include <cudf/table/table.hpp>
 #include <cudf/table/table_view.hpp>
 
+#include <cudf_test/column_utilities.hpp>
+#include <cudf_test/column_wrapper.hpp>
+#include <cudf_test/cudf_gtest.hpp>
+#include <cudf_test/type_lists.hpp>
+
 int main()
 {
   const int8_t max_depth = 3;
@@ -123,5 +128,5 @@ for(uint32_t k=0;k<10;k++)
 	       fixed_width_column_wrapper<uint32_t>({3, 6, 60, 0, 8, 10, 36, 12, 7, 16, 23, 28, 45, 53})}});
 	*/
     }
-    return (0);
+    return (0)
 }
