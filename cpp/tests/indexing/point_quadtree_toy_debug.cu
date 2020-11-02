@@ -14,11 +14,8 @@ int main()
 {
   const int8_t max_depth = 3;
   uint32_t min_size      = 50;
-  //double scale           = 301.0;
-  double scale           = 322.0;
-  //double x_min =  -1276.4949079170394, x_max = 1134.877311993804, y_min = -1111.7015761122134, y_max = 1191.572387431971;
-  double x_min =  -1386.29637821, x_max = 1151.95834884, y_min = -1369.83858359, y_max = 1206.22683977;
-   
+  double scale           = 400.0;
+  double x_min =  -1276.4949079170394, x_max = 1134.877311993804, y_min = -1111.7015761122134, y_max = 1191.572387431971;   
 
   cudf::test::fixed_width_column_wrapper<double> x(
     { -318.71851278,  -198.63590716,   -66.44028879,  -148.8954397 ,
