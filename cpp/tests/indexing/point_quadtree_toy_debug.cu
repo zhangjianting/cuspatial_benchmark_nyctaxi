@@ -84,7 +84,7 @@ int main()
         -137.83526728,  -354.86398292,   869.43633873,   497.19719566,
          659.56843815,  -441.20940927,   564.29703226,   248.00047317});
 
-for(uint32_t k=0;k<10;k++)
+for(uint32_t k=0;k<1;k++)
 {
   auto quadtree_pair =
     cuspatial::quadtree_on_points(x, y, x_min, x_max, y_min, y_max, scale, max_depth, min_size);
