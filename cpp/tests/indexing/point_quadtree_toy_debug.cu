@@ -7,7 +7,6 @@
 
 #include <cudf_test/column_utilities.hpp>
 #include <cudf_test/column_wrapper.hpp>
-#include <cudf_test/cudf_gtest.hpp>
 #include <cudf_test/type_lists.hpp>
 
 int main()
