@@ -1,3 +1,19 @@
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:0 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
@@ -7,6 +23,22 @@
          1          1          0         20          3
          2          1          0         14         23
          3          1          0         42         37
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:1 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
@@ -16,12 +48,47 @@
          1          1          0         20          3
          2          1          0         14         23
          3          1          0         42         37
-	 round:2 num_quad=5
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
+	 round:2 num_quad=8
          0          0          1          4          4
-         1          0          0         23          3
-         2          0          0         11         26
-         3          0          0          7         37
+         1          0          0         23         79
+         2          0          0         11        102
+         3          0          0          7        113
          0          1          0          3          0
+         1          1          0         20          3
+         2          1          0         14         23
+         3          1          0         42         37
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:3 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
@@ -31,12 +98,47 @@
          1          1          0         20          3
          2          1          0         14         23
          3          1          0         42         37
-	 round:4 num_quad=5
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
+	 round:4 num_quad=8
          0          0          1          4          4
-         1          0          0         23          3
-         2          0          0         11         26
-         3          0          0          7         37
+         1          0          0         23         79
+         2          0          0         11        102
+         3          0          0          7        113
          0          1          0          3          0
+         1          1          0         20          3
+         2          1          0         14         23
+         3          1          0         42         37
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:5 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
@@ -46,12 +148,47 @@
          1          1          0         20          3
          2          1          0         14         23
          3          1          0         42         37
-	 round:6 num_quad=5
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
+	 round:6 num_quad=8
          0          0          1          4          4
-         1          0          0         23          3
-         2          0          0         11         26
-         3          0          0          7         37
+         1          0          0         23         79
+         2          0          0         11        102
+         3          0          0          7        113
          0          1          0          3          0
+         1          1          0         20          3
+         2          1          0         14         23
+         3          1          0         42         37
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:7 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
@@ -61,12 +198,47 @@
          1          1          0         20          3
          2          1          0         14         23
          3          1          0         42         37
-	 round:8 num_quad=5
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
+	 round:8 num_quad=8
          0          0          1          4          4
-         1          0          0         23          3
-         2          0          0         11         26
-         3          0          0          7         37
+         1          0          0         23         79
+         2          0          0         11        102
+         3          0          0          7        113
          0          1          0          3          0
+         1          1          0         20          3
+         2          1          0         14         23
+         3          1          0         42         37
+keys:
+14 12 15 14 12 9 24 24 12 3 15 6 15 12 24 26 14 1 9 15 1 14 63 7 8 5 7 5 36 13 15 63 25 5 12 6 15 37 32 27 13 18 14 27 5 15 11 24 24 18 4 14 63 9 37 26 15 13 36 37 11 27 5 12 24 12 11 63 24 14 13 18 11 14 6 15 15 12 15 13 12 6 13 14 11 12 14 22 6 24 18 11 26 11 63 39 8 5 14 25 24 6 12 11 12 63 6 7 63 15 4 9 24 6 36 36 32 6 36 15 
+lev=2 end_pos=24 begin_pos=0
+lev=1 end_pos=34 begin_pos=24
+lev=0 end_pos=38 begin_pos=34
+before:num_parent_nodes=14 num_child_nodes=34 level_1_size=4
+parent_positions:
+0 0 0 0 1 1 1 2 2 3 4 4 5 5 5 5 6 6 6 7 7 7 7 8 9 10 10 10 10 11 12 12 12 13 
+in remove_unqualified_quads: num_invalid_parent_nodes=6
+num_invalid_parent_nodes=6 num_valid_nodes=8 num_parent_nodes=8
+quad_keys:
+0 1 2 3 0 1 2 3 
+quad_point_count:
+79 23 11 7 3 20 14 42 
+quad_child_count:
+4 3 2 1 2 4 3 4 
 	 round:9 num_quad=8
          0          0          1          4          4
          1          0          0         23         79
