@@ -78,3 +78,52 @@ end = time.time()
 print(len(polygons_and_points)) 
 print('spatial refinement time :', (end-start)*1000)
 
+
+
+import shapefile
+from shapely.geometry import Point, Polygon
+
+start = time.time()
+plyreader = shapefile.Reader(os.path.join(cuspatial_data_path , polygon_shapefile_name))
+polygon = plyreader.shapes()
+
+plys = []
+for shape in polygon:
+    plys.append(Polygon(shape.points))
+end = time.time()
+print(len(plys)) 
+print('reading and pre-processing shapefile time :', (end-start)*1000)
+
+start = time.time()
+np_pnt_x=points_df['x'].to_array()
+np_pnt_y=points_df['y'].to_array()
+
+ply_idx= polygons_and_points['polygon_index'].to_array()
+pnt_idx= polygons_and_points['point_index'].to_array()
+
+end = time.time()
+print('GPU->CPU data transfer time :', (end-start)*1000)
+
+start = time.time()
+num_points=len(pnt_idx)
+total_points=len(np_pnt_x)
+match_idx=[key_to_point[pnt_idx[i]] for i in range(num_points)]
+non_match_idx=np.setdiff1d(np.arange(total_points),match_idx)
+print('#of non-matched points=',len(non_match_idx))
+end = time.time()
+print('computing non-matched index on CPU time', (end-start)*1000)
+
+#verify that (first 100) non-matched points are outside of any polygons
+start = time.time()
+num_error=0
+for i in range(100):
+    k=non_match_idx[i]
+    pt = Point(np_pnt_x[k], np_pnt_y[k])
+    for j in range(len(plys)):
+       if(plys[j].contains(pt)):
+           num_error=num_error+1
+#num_error should be error
+print('num_error=',num_error)
+end = time.time()
+print('CPU verification time', (end-start)*1000)
+
