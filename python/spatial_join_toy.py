@@ -42,6 +42,11 @@ intersections = cuspatial.join_quadtree_and_bounding_boxes(
 
 polygons_and_points = cuspatial.quadtree_point_in_polygon(
     intersections,quadtree,point_indices,points_x,points_y,small_poly_offsets,small_ring_offsets,poly_points_x,poly_points_y)
+
+#ply_idx are squentially numbered
+#pnt_idx are offsets into point_indices
+ply_idx= polygons_and_points['polygon_index'].to_array()
+pnt_idx= polygons_and_points['point_index'].to_array()
  
 #polygon_index [0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3]
 #point_index [62,60,45,46,47,48,49,50,51,52,54,28,29,30,31,32,33,34,35]
@@ -81,7 +86,8 @@ for shape in polygon:
 np_pnt_x=points_x.to_array()
 np_pnt_y=points_y.to_array()
 
-num_points=len(points_x)
+#verify for each points in the input point arrays
+total_points=len(points_x)
 for i in range(num_points):
     k=point_indices[i]
     pt = Point(np_pnt_x[k], np_pnt_y[k])
@@ -90,4 +96,27 @@ for i in range(num_points):
         if(pip):
            print(i,'...',k,'-->',j)
 
+#verify for each matched point/polygon pair
+num_points=len(pnt_idx)
+for i in range(num_points):
+    #pnt_idx has offsets to point_indices; point_indices has offsets to the orginal input point array
+    m=pnt_idx[i]
+    n=point_indices[m]
+    pt = Point(np_pnt_x[n], np_pnt_y[n])
+    for j in range(len(plys)):
+        pip = plys[j].contains(pt)
+        if(pip):
+            print(i,'...',m,'...',n,'-->',j,'|',ply_idx[i])
 
+#verify that non-matched points are outside of any polygons
+match_idx=[point_indices[pnt_idx[i]] for in range(num_points)]
+non_match_idx=np.setdiff1d(np.arange(total_points),match_idx)
+num_error=0
+for i in range(len(non_match_idx)):
+    k=non_match_idx[i]
+    pt = Point(np_pnt_x[k], np_pnt_y[k])
+    for j in range(len(plys)):
+       if(plys[j].contains(pt)):
+           num_error=num_error+1
+#num_error should be error
+print('num_error=',num_error)
