@@ -95,7 +95,7 @@ for i in range(num_points):
             print(i,'...',m,'...',n,'-->',j,'|',ply_idx[i])
 
 #verify that non-matched points are outside of any polygons
-match_idx=[point_indices[pnt_idx[i]] for in range(num_points)]
+match_idx=[point_indices[pnt_idx[i]] for i in range(num_points)]
 non_match_idx=np.setdiff1d(np.arange(total_points),match_idx)
 num_error=0
 for i in range(len(non_match_idx)):
