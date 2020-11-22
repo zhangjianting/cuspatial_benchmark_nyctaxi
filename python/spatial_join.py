@@ -98,16 +98,27 @@ start = time.time()
 np_pnt_x=points_df['x'].to_array()
 np_pnt_y=points_df['y'].to_array()
 
-ply_idx= polygons_and_points['polygon_index'].to_array()
-pnt_idx= polygons_and_points['point_index'].to_array()
+ply_idx= polygons_and_points['polygon_index']
+pnt_idx= polygons_and_points['point_index']
 
 end = time.time()
 print('GPU->CPU data transfer time :', (end-start)*1000)
 
-start = time.time()
 num_points=len(pnt_idx)
 total_points=len(np_pnt_x)
-match_idx=[key_to_point[pnt_idx[i]] for i in range(num_points)]
+
+start = time.time()
+seq=cudf.core.column.as_column(np.arange(total_points), dtype="uint8")
+end = time.time()
+print('gen seq time', (end-start)*1000)
+
+start = time.time()
+df=cudf.DataFrame('map',cudf.Series(key_to_point), dtype=np.uint32)
+idx=cudf.core.column.as_column(np.arange(total_points), dtype="uint8")
+end = time.time()
+print('gather time', (end-start)*1000)
+
+
 non_match_idx=np.setdiff1d(np.arange(total_points),match_idx)
 print('#of non-matched points=',len(non_match_idx))
 end = time.time()

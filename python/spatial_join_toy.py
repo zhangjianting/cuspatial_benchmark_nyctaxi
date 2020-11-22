@@ -45,33 +45,19 @@ polygons_and_points = cuspatial.quadtree_point_in_polygon(
 
 #ply_idx are squentially numbered
 #pnt_idx are offsets into point_indices
-ply_idx= polygons_and_points['polygon_index'].to_array()
-pnt_idx= polygons_and_points['point_index'].to_array()
+ply_idx= polygons_and_points['polygon_index']
+pnt_idx= polygons_and_points['point_index']
  
 #polygon_index [0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3]
 #point_index [62,60,45,46,47,48,49,50,51,52,54,28,29,30,31,32,33,34,35]
 
-'''
-28 ... 37 --> 3
-29 ... 38 --> 3
-30 ... 39 --> 3
-31 ... 40 --> 3
-32 ... 41 --> 3
-33 ... 42 --> 3
-34 ... 43 --> 3
-35 ... 44 --> 3
-45 ... 45 --> 1
-46 ... 46 --> 1
-47 ... 47 --> 1
-48 ... 48 --> 1
-49 ... 49 --> 1
-50 ... 50 --> 1
-51 ... 51 --> 1
-52 ... 52 --> 1
-54 ... 54 --> 1
-60 ... 60 --> 3
-62 ... 69 --> 0
-'''
+
+total_points=len(points_x)
+df=cudf.DataFrame({'a':point_indices})
+idx=cudf.core.column.as_column(np.arange(total_points), dtype="uint32")
+val=df.take(pnt_idx)
+diff=point_indices._column-val['a']._column;
+
 
 import shapefile
 from shapely.geometry import Point, Polygon
