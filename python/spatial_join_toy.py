@@ -51,13 +51,13 @@ pnt_idx= polygons_and_points['point_index']
 #polygon_index [0, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 3, 3, 3]
 #point_index [62,60,45,46,47,48,49,50,51,52,54,28,29,30,31,32,33,34,35]
 
-
+'''
 total_points=len(points_x)
 df=cudf.DataFrame({'a':point_indices})
 idx=cudf.core.column.as_column(np.arange(total_points), dtype="uint32")
 val=df.take(pnt_idx)
 diff=point_indices._column-val['a']._column;
-
+'''
 
 import shapefile
 from shapely.geometry import Point, Polygon
