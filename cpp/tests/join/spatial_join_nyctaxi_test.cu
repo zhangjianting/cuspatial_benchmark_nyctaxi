@@ -338,7 +338,7 @@ int main()
     
     const uint32_t num_level=15;
     const uint32_t min_size=512;
-    const uint32_t first_n=12; 
+    const uint32_t first_n=1; 
 
     std::cout<<"loading NYC taxi pickup locations..........."<<std::endl;
     
