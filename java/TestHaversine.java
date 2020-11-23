@@ -15,6 +15,6 @@ public class TestHaversine
       ColumnVector bLat = ColumnVector.fromDoubles(0, 30);
       ColumnVector result = CuSpatial.haversineDistance(aLon, aLat, bLon, bLat);
       HostColumnVector h_dis=result.copyToHost();
-      System.println(h_dis.toString());
+      System.out.println(h_dis.toString());
     }
 }
