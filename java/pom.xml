@@ -76,6 +76,14 @@
             <classifier>${cudf.classifier.cuda}</classifier>
             <version>${project.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>ai.rapids</groupId>
+            <artifactId>cuspatial</artifactId>
+            <classifier>${cuspatial.classifier.cuda}</classifier>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>ai.rapids</groupId>
             <artifactId>cudf</artifactId>
