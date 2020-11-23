@@ -15,7 +15,7 @@
 #=============================================================================
 cmake_minimum_required(VERSION 3.12 FATAL_ERROR)
 
-project(CUDA_SPATIAL VERSION 0.15.0 LANGUAGES C CXX CUDA)
+project(CUDA_SPATIAL VERSION 0.16.0 LANGUAGES C CXX CUDA)
 
 if(NOT CMAKE_CUDA_COMPILER)
   message(SEND_ERROR "CMake cannot locate a CUDA compiler")
@@ -177,9 +177,6 @@ find_path(CUDF_INCLUDE "cudf"
 find_library(CUDF_LIBRARY "cudf"
              HINTS "$ENV{CUDF_ROOT}/lib")
 
-set(CUDF_TEST_INCLUDE "$ENV{CUDF_HOME}/cpp")
-
-message(STATUS "CUDF: CUDF_HOME set to $ENV{CUDF_HOME}")
 message(STATUS "CUDF: CUDF_LIBRARY set to ${CUDF_LIBRARY}")
 message(STATUS "CUDF: CUDF_INCLUDE set to ${CUDF_INCLUDE}")
 message(STATUS "CUDF: CUB_INCLUDE_DIR set to ${CUB_INCLUDE_DIR}")
