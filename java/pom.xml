@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ai.rapids</groupId>
-    <artifactId>cuspatial</artifactId>
+    <artifactId>cuspatial_benchmark</artifactId>
     <version>0.16-SNAPSHOT</version>
 
     <name>cuspatial_benchmark</name>
@@ -294,94 +294,6 @@
         </pluginManagement>
 
         <plugins>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>cmake</id>
-                        <phase>validate</phase>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${native.build.path}"/>
-                                <exec dir="${native.build.path}"
-                                      failonerror="true"
-                                      executable="cmake">
-                                    <arg value="${basedir}/src/main/native"/>
-                                    <arg value="-DCUDA_STATIC_RUNTIME=${CUDA_STATIC_RUNTIME}" />
-                                    <arg value="-DPER_THREAD_DEFAULT_STREAM=${PER_THREAD_DEFAULT_STREAM}" />
-                                    <arg value="-DCMAKE_CXX11_ABI=${cxx11.abi.value}"/>
-                                    <arg value="-DCMAKE_CXX_FLAGS=${cxx.flags}"/>
-                                </exec>
-                                <exec dir="${native.build.path}"
-                                      failonerror="true"
-                                      executable="make">
-                                    <arg value="-j16"/>
-                                </exec>
-                                <mkdir dir="${project.build.directory}/extra-resources"/>
-                                <exec executable="bash" output="${project.build.directory}/extra-resources/cuspatial-java-version-info.properties">
-                                  <arg value="${project.basedir}/buildscripts/build-info"/>
-                                  <arg value="${project.version}"/>
-                                </exec>
-                            </tasks>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>setproperty</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                            def sout = new StringBuffer(), serr = new StringBuffer()
-                            //This only works on linux
-                            def proc = 'ldd ${native.build.path}/libcuspatialjni.so'.execute()
-                            proc.consumeProcessOutput(sout, serr)
-                            proc.waitForOrKill(10000)
-
-                            def libcuspatial = ~/libcuspatial\\.so\\s+=>\\s+(.*)libcuspatial.*\\.so\\s+.*/
-                            def cuspatialm = libcuspatial.matcher(sout)
-                            if (cuspatialm.find()) {
-                                pom.properties['native.cuspatial.path'] = cuspatialm.group(1)
-                            } else {
-                                fail("Could not find cuspatial as a dependency of libcuspatialjni out> $sout err> $serr")
-                            }
-
-                            def libcudart = ~/libcudart\\.so\\.(.*)\\s+=>.*/
-                            def cm = libcudart.matcher(sout)
-                            if (cm.find()) {
-                                if (pom.properties['CUDA_STATIC_RUNTIME'] == 'ON') {
-                                    fail("found libcudart when we expect to be statically linked to it")
-                                }
-                                def classifier = 'cuda' + cm.group(1)
-                                  .replaceFirst(/\\./, '-') // First . becomes a -
-                                  .replaceAll(/\\..*$/, '') // Drop all of the subversions from cuda
-                                  .replaceAll(/-0$/, '') // If it is a X.0 version, like 10.0 drop the .0
-                                pom.properties['cuda.classifier'] = classifier
-                                println 'WARNING FOUND libcudart this means your jar will only work against a single version of the cuda runtime ' + classifier
-                            } else if (pom.properties['CUDA_STATIC_RUNTIME'] == 'OFF') {
-                                fail('could not find libcudart when we expect to be dynamically linked to it')
-                            } else {
-                                pom.properties['cuda.classifier'] = ''
-                            }
-
-                            if (pom.properties['CUDA_STATIC_RUNTIME'] == 'ON') {
-                                println 'WARNING RUNNING WITH STATIC LINKING DOES NOT FULLY WORK. USE WITH CAUTION.'
-                            }
-                            </source>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
