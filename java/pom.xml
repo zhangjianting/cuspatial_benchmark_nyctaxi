@@ -67,6 +67,7 @@
         <CUDA_STATIC_RUNTIME>OFF</CUDA_STATIC_RUNTIME>
         <PER_THREAD_DEFAULT_STREAM>OFF</PER_THREAD_DEFAULT_STREAM>
         <cudf.classifier.cuda>cuda10-1</cudf.classifier.cuda>
+        <cuspatial.classifier.cuda>cuda10-1</cuspatial.classifier.cuda>
     </properties>
 
     <dependencies>
@@ -80,6 +81,7 @@
         <dependency>
             <groupId>ai.rapids</groupId>
             <artifactId>cuspatial</artifactId>
+            <classifier>${cuspatial.classifier.cuda}</classifier>
             <version>${project.version}</version>
         </dependency>
         
