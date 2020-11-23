@@ -12,6 +12,12 @@ public class TestHaversine
 
       //all parameters are place holders
       String csv_fn="";
+      Schema schema = Schema.builder()
+        .column(DType.INT32, "A")
+        .column(DType.FLOAT64, "B")
+        .column(DType.INT64, "C")
+        .column(DType.STRING, "D")
+        .build();
       Table table = Table.readCSV(schema, new File(csv_fn));
       System.out.println(table.toString());
 
