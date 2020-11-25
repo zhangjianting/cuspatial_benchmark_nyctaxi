@@ -29,7 +29,7 @@ public class TestHaversine
       System.out.println(table.toString());*/
 
       String parquet_fn="/home/jianting/cuspatial_data/200901.parquet";
-      Table table = Table.readCSV(new File(parquet_fn));
+      Table table = Table.readParquet(new File(parquet_fn));
 
       //"Start_Lon"
       ColumnVector aLon=table.getColumn(0);
