@@ -49,4 +49,5 @@ public class TestHaversine
             double val = h_dis.getDouble(i);
             System.out.print(val+" ");
       }
+  }
 }
