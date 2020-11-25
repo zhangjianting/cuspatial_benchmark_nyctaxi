@@ -43,11 +43,12 @@ public class TestHaversine
       ColumnVector result = CuSpatial.haversineDistance(aLon, aLat, bLon, bLat);
       HostColumnVector h_dis=result.copyToHost();
       System.out.println(h_dis.toString());
-      int n=h_dis.getRowCount();
-      for (int i = 0; i < n; ++i)
+      long n=h_dis.getRowCount();
+      for (long i = 0; i < n; ++i)
       {
             double val = h_dis.getDouble(i);
             System.out.print(val+" ");
+            if(i>10) break;
       }
   }
 }
