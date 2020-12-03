@@ -27,9 +27,9 @@ print('number of trajectories:',num_traj)
 print('trajectory parsing time :', (end-start)*1000)
 
 #OOM error on Titan V 12 GB beyond this limit (14000)
-ul=1000
+num_traj=1000
 start = time.time()
-cuspatial_dist=cuspatial.directed_hausdorff_distance(xs[0:ul],ys[0:ul],lengths[0:ul])
+cuspatial_dist=cuspatial.directed_hausdorff_distance(xs[0:num_traj],ys[0:num_traj],lengths[0:num_traj])
 cuspatial_dist=cuspatial_dist.as_matrix()
 end = time.time()
 # ~800 ms on Titan V 12GB
@@ -37,6 +37,7 @@ print('directed_hausdorff_distance time :', (end-start)*1000)
 
 pnt_x=xs.to_array()
 pnt_y=ys.to_array()
+n=lengths.to_array()
 
 start = time.time()
 trajs = []
