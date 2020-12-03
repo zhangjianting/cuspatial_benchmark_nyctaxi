@@ -30,8 +30,8 @@ print('trajectory parsing time :', (end-start)*1000)
 ul=1000
 start = time.time()
 cuspatial_dist=cuspatial.directed_hausdorff_distance(xs[0:ul],ys[0:ul],lengths[0:ul])
+cuspatial_dist=cuspatial_dist.as_matrix()
 end = time.time()
-print('number of similarities:',len(sim))    
 # ~800 ms on Titan V 12GB
 print('directed_hausdorff_distance time :', (end-start)*1000)
 
