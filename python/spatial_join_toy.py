@@ -104,5 +104,5 @@ for i in range(len(non_match_idx)):
     for j in range(len(plys)):
        if(plys[j].contains(pt)):
            num_error=num_error+1
-#num_error should be error
+#num_error should be zero
 print('num_error=',num_error)

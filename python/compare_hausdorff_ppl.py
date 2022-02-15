@@ -1,7 +1,10 @@
 import time
 import numpy as np
+from scipy.spatial.distance import directed_hausdorff
+
 import cudf
 import cuspatial
+
 
 start = time.time()
 df = cudf.read_parquet("/home/jianting/trajectorysample/pplTraj_2020-08-01.parquet")
