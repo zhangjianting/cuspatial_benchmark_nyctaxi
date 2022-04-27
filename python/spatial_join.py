@@ -17,7 +17,7 @@ import numpy as np
 # https://www1.nyc.gov/site/planning/data-maps/open-data.page#district_political
 # version 11a released in 2011 were used; both use EPSG 2263 projection 
 
-cuspatial_data_path='/home/microway/cuspatial_data' 
+cuspatial_data_path='/home/geoteci/cuspatial_data' 
 polygon_shapefile_name='taxi_zones.shp'
 #polygon_shapefile_name='nycd_11a_av/nycd.shp'
 #polygon_shapefile_name='nyct2000_11a_av/nyct2000.shp'
@@ -27,13 +27,14 @@ def read_points(path):
     points = np.fromfile(path, dtype=np.int32)
     points = cupy.asarray(points)
     points = points.reshape((len(points)// 4, 4))
-    points = cudf.DataFrame.from_gpu_matrix(points)
+    points = cudf.DataFrame(points)
     return points
 
+#use 6 month data for RTX 2080 with 8GB memory 
 points_df = cudf.concat(
     [read_points(os.path.join(cuspatial_data_path,
         '2009{}.cny'.format('0{}'.format(i) if i < 10 else i)))
-    for i in range(1, 13)]).reset_index(drop=True)
+    for i in range(1, 7)]).reset_index(drop=True)
 points_df['x'] = points_df[0].astype(np.float32)
 points_df['y'] = points_df[1].astype(np.float32)
 print(len(points_df))
@@ -77,64 +78,4 @@ polygons_and_points = cuspatial.quadtree_point_in_polygon(
 end = time.time()
 print(len(polygons_and_points)) 
 print('spatial refinement time :', (end-start)*1000)
-
-
-
-import shapefile
-from shapely.geometry import Point, Polygon
-
-start = time.time()
-plyreader = shapefile.Reader(os.path.join(cuspatial_data_path , polygon_shapefile_name))
-polygon = plyreader.shapes()
-
-plys = []
-for shape in polygon:
-    plys.append(Polygon(shape.points))
-end = time.time()
-print(len(plys)) 
-print('reading and pre-processing shapefile time :', (end-start)*1000)
-
-start = time.time()
-np_pnt_x=points_df['x'].to_array()
-np_pnt_y=points_df['y'].to_array()
-
-ply_idx= polygons_and_points['polygon_index']
-pnt_idx= polygons_and_points['point_index']
-
-end = time.time()
-print('GPU->CPU data transfer time :', (end-start)*1000)
-
-num_points=len(pnt_idx)
-total_points=len(np_pnt_x)
-
-start = time.time()
-seq=cudf.core.column.as_column(np.arange(total_points), dtype="uint8")
-end = time.time()
-print('gen seq time', (end-start)*1000)
-
-start = time.time()
-df=cudf.DataFrame('map',cudf.Series(key_to_point), dtype=np.uint32)
-idx=cudf.core.column.as_column(np.arange(total_points), dtype="uint8")
-end = time.time()
-print('gather time', (end-start)*1000)
-
-
-non_match_idx=np.setdiff1d(np.arange(total_points),match_idx)
-print('#of non-matched points=',len(non_match_idx))
-end = time.time()
-print('computing non-matched index on CPU time', (end-start)*1000)
-
-#verify that (first 100) non-matched points are outside of any polygons
-start = time.time()
-num_error=0
-for i in range(100):
-    k=non_match_idx[i]
-    pt = Point(np_pnt_x[k], np_pnt_y[k])
-    for j in range(len(plys)):
-       if(plys[j].contains(pt)):
-           num_error=num_error+1
-#num_error should be error
-print('num_error=',num_error)
-end = time.time()
-print('CPU verification time', (end-start)*1000)
 

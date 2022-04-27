@@ -62,19 +62,19 @@ diff=point_indices._column-val['a']._column;
 import shapefile
 from shapely.geometry import Point, Polygon
 
-plyreader = shapefile.Reader('/home/microway/cuspatial_data/quad_test_ply.shp')
+plyreader = shapefile.Reader('/home/geoteci/cuspatial_data/quad_test_ply.shp')
 polygon = plyreader.shapes()
 
 plys = []
 for shape in polygon:
     plys.append(Polygon(shape.points))
 
-np_pnt_x=points_x.to_array()
-np_pnt_y=points_y.to_array()
+np_pnt_x=points_x.to_numpy()
+np_pnt_y=points_y.to_numpy()
 
 #verify for each points in the input point arrays
 total_points=len(points_x)
-for i in range(num_points):
+for i in range(total_points):
     k=point_indices[i]
     pt = Point(np_pnt_x[k], np_pnt_y[k])
     for j in range(len(plys)):
